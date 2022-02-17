@@ -6,29 +6,33 @@ close all % Close all figures
 %clc
 RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
-%DS = ; %DataSet:  or 'NMOMNW15'
-DS = ['OMHA14','NMOMNW15'];
-[adcp, ctd, h, BN] = import_data(RF, DS, 'new');
-tak = 1;
+
+ds = 1; %Choose which dataset to analyze
+
+DS = {'OMHA14','NMOMNW15'}; DS = DS{ds}; 
+BN = {{' HK'; ' OMS'; ' OMN'}, {' NM'; ' OM'; ' NWW'}}; BN = BN{ds};
+
 %% Import preprocessed semi-raw data (ADCP / CTD / H structs)
 
+[adcp, ctd, h] = import_data(RF, DS);
 
-velmap = brewermap(20, 'RdBu');
-salmap = brewermap(15, 'YlOrBr'); % Brewermap.m (available through Github, use the same code); map = brewermap(N,scheme)
+% ctd = hctd(h,ctd,DS); %Postprocess ctd data
 
 %% Data analysis
 
 
-ctd = hctd(h,ctd,DS);
+
+
 
 wl = @(t) interp1(datenum(h.time), h.level, t, 'linear');
+tak = 1;
 
 %tak = 1:2;
 plots = 0;
 for b = tak
     %plot_all(adcp{b})
     [V{b}, U{b}] = processVel(adcp{b}, h, BN{b}); % V = VMADCP objects, U = generic velocity data (plus more)
-    S{b} = processSal(V{b}, U{b}, ctd, DS, b); %S = Salinity data
+    S{b} = processSal(V{b}, U{b}, ctd{b}, DS); %S = Salinity data
     if plots
         try
             plot_all(V{b})
@@ -42,6 +46,7 @@ end
 % for b=tak
 %     F{b} = processFlux(U{b}, S{b});
 % end
+%%
 figure;
 plot_geom_all(U, S, h)
 

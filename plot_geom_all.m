@@ -5,7 +5,7 @@ hold on
 for b = 1:numel(U)
     U{b}.xs.plot()
     U{b}.B.plot()
-    plot(cell2mat(S{b}.x'), cell2mat(S{b}.y'), '.')    
+    plot(S{b}.Xp', S{b}.Yp', '.')    
 end
 grid on
 xlabel('x')

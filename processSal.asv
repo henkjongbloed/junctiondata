@@ -17,7 +17,7 @@ elseif strcmp(DS,'OMHA14') % Works correctly. CTD data are in RD coordinates
 end
 
 [S.s, S.n] = U.xs.xy2sn(S.X, S.Y);
-[S.Xp, S.Yp] = U.xs.sn2xy(0*S.s, S.n);
+[S.U.xs.sn2xy(0*S.s, S.n)
 
 
 % S.P_tmp{hour}      = [S.x{hour},S.y{hour},S.Z{hour}];
