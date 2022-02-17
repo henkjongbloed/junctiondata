@@ -5,23 +5,13 @@ clearvars % Clear all variables from the workspace
 close all % Close all figures
 %clc
 RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
-cd([RF,'\DataAnalysis'])
-%DS = 'NMOMNW15'; %DataSet:  or 'NMOMNW15'
-DS = 'OMHA14';
-addPaths(RF, DS, 'new')
+cd([RF,'WP2\TwoJunctions\code'])
+%DS = ; %DataSet:  or 'NMOMNW15'
+DS = ['OMHA14','NMOMNW15'];
+[adcp, ctd, h, BN] = import_data(RF, DS, 'new');
+tak = 1;
 %% Import preprocessed semi-raw data (ADCP / CTD / H structs)
-load(['ADCP',DS,'.mat']);
-h = load(['H',DS,'.mat']);
-h.time            = datetime(h.date, 'ConvertFrom', 'datenum', 'Format', 'HH:mm:ss');
-if strcmp(DS,'NMOMNW15')
-    ctd = load(['CTD',DS,'.mat']).CTD_20150914 ;
-    BN = {' NM', ' OM', ' NWW'};
-    tak = 1;
-else
-    ctd = load('OBSsal.mat').OBSsal;
-    BN = {' HK', ' OMS', ' OMN'};
-    tak = 1;
-end
+
 
 velmap = brewermap(20, 'RdBu');
 salmap = brewermap(15, 'YlOrBr'); % Brewermap.m (available through Github, use the same code); map = brewermap(N,scheme)
