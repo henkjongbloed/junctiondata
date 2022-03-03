@@ -7,8 +7,9 @@ close all % Close all figures
 RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
 
-ds = 1; %Choose which dataset to analyze
-
+% ds = 2; %Choose which dataset to analyze
+ds = input('Enter dataset');
+tak = input('Enter branch');
 DS = {'OMHA14','NMOMNW15'}; DS = DS{ds}; 
 BN = {{' HK'; ' OMS'; ' OMN'}, {' NM'; ' OM'; ' NWW'}}; BN = BN{ds};
 
@@ -18,14 +19,10 @@ BN = {{' HK'; ' OMS'; ' OMN'}, {' NM'; ' OM'; ' NWW'}}; BN = BN{ds};
 
 % ctd = hctd(h,ctd,DS); %Postprocess ctd data
 
+
 %% Data analysis
 
-
-
-
-
-wl = @(t) interp1(datenum(h.time), h.level, t, 'linear');
-tak = 1;
+% tak = 2;
 
 %tak = 1:2;
 plots = 0;

@@ -61,14 +61,15 @@ T.velocity_model.constituentsW = [];%[TM2, TM2/2];
 %vel2 = L.get_velocity;
 
 
-
+wl = @(t) interp1(datenum(h.time), h.level, t, 'linear');
+% h.date  = datenum(h.time) (2014 and 2015)
 
 U.B = B; U.xs = xs; U.mesh_mean = mesh_mean; 
 U.mesh = mesh_mean; 
 U.T = T; 
 U.vel = vel;
 U.cov_vel = cov_vel;
-%U.eta = wl;
+U.eta = wl;
 
 U.BN = BN; 
 
