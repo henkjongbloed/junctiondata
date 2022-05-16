@@ -1,27 +1,31 @@
 function [adcp, ctd, h] = import_data(RF, DS)
 
-addpath(strcat(RF,'Tools\adcptoolsGit'));
-addpath(strcat(RF,'Tools\loess-master'));
+addpath(strcat(RF,'Tools\adcptoolsGit')); %path to ADCPTools
+addpath(strcat(RF,'Tools\loess-master')); %path to loess-master
 addpath(strcat(RF,'Tools\T_Tide'))
 addpath(strcat(RF,'Tools\BrewerMap-master'));
 addpath(strcat(RF,'Tools\subaxis'));
 
 F2 = 'WP2\TwoJunctions\';
-addpath(strcat(RF,F2,'\data\processedData'));
+addpath(strcat(RF,F2,'\data\processedData')); %.mat structs
 
 adcp = load(['ADCP',DS], '-mat').adcp;
-h = load(['H',DS,'.mat']);
+h3 = load('NAPWaterLevels.mat');
+h = h3.(['H',DS]); %bit ugly
+h.wl = h.wl/100; % cm to m
+
+
 % ctd = load(['CTD', DS], '-mat').ctd;
-h.time            = datetime(h.date, 'ConvertFrom', 'datenum', 'Format', 'HH:mm:ss');
+% h.time            = datetime(h.date, 'ConvertFrom', 'datenum', 'Format', 'HH:mm:ss');
 
 
 
 if strcmp(DS,'NMOMNW15')
     ctd = load(['CTD',DS,'-2.mat']).CTD_20150914 ;
-    BN = {' NM'; ' OM'; ' NWW'};
+    BN = {' New Meuse'; ' Old Meuse'; ' Rotterdam Waterway'};
 else
     ctd = load('OBSsal.mat').OBSsal;
-    BN = {' HK'; ' OMS'; ' OMN'};
+    BN = {' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'};
 end
 
 ctd = split_branches(ctd, DS, BN);

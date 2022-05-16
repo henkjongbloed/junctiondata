@@ -12,7 +12,7 @@ h0 = eta0 - zb;
 
 
 
-%Split water depth
+%Split water depth: Instantaneous depth = H{1} + H{2} + H{3}
 H{1} = mean(h0);
 H{2} = h0 - H{1};
 H{3} = eta1;

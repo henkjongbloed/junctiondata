@@ -4,3 +4,4 @@ function sig = z2sig(z, zb, eta)
 % To be used with CTD data.
 
 sig = (z - zb)./(eta - zb);
+end
