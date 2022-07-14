@@ -63,7 +63,7 @@ ef = EnsembleFilter(V);
 
 %%
 % T = LocationBasedVelocitySolver(V, xs, ef, mesh_mean, B);
-T = LocationBasedVelocitySolver(V, xs, ef, mesh_mean, B);
+T = LocationBasedVelocitySolver(V, xs, ef, mesh_mean);
 
 
 T.velocity_model = TidalVelocityModel();
@@ -86,7 +86,7 @@ T.velocity_model.constituentsW = [TM2; TM2/2];
 % U.pars{1,1}(:,1) = - U.pars{1,1}(:,1);
 
 [U.tid_pars, ~] = T.velocity_model.get_tidal_pars(U.pars{1,1}, U.cov_pars{1,1});
-
+U.pars = U.tid_pars;
 wl = @(t) interp1(h.t, h.wl, t, 'linear');
 
 U.B = B; U.xs = xs; U.mesh_mean = mesh_mean; 

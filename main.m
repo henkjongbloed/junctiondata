@@ -3,7 +3,7 @@
 
 clearvars % Clear all variables from the workspace
 close all % Close all figures
-figsave = 1;
+figsave = 0;
 %clc
 RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
@@ -24,8 +24,8 @@ for j = 1:length(tak)
     b = tak(j);
     [V{j}, U{j}] = processVel(adcp{b}, figs, BN{b}); % V = VMADCP objects, U = generic velocity data (plus more)
     S{j} = processSal(U{j}, ctd{b}, DS); %S = Salinity data
-    F{j} = processHours(U{j}, S{j});
-    F{j} = processFlux(F{j});
+    %F{j} = processHours(U{j}, S{j});
+    %F{j} = processFlux(F{j});
 end
 
 %% Plotting
@@ -36,23 +36,23 @@ end
 
 % plotMap(U,S);
 % 
-plotDA_Flux(tak, U, F);
-plotSubtidalFlow(tak, U);
-plotSubtidalSalt(tak, F, U);
-plot_geom_all(U, S)
-% plotPars(tak, U);
-plotT = 1:2:13;
-plotTimeUS(tak, plotT, F, U);
-plotCSA_Flux(tak, F, U);
-plotWL_CSA(F, tak, BN);
-
-%% Tidal Ellipses
+% plotDA_Flux(tak, U, F);
+% plotSubtidalFlow(tak, U);
+% plotSubtidalSalt(tak, F, U);
+% plot_geom_all(U, S)
+% % plotPars(tak, U);
+% plotT = 1:2:13;
+% plotTimeUS(tak, plotT, F, U);
+% plotCSA_Flux(tak, F, U);
+% plotWL_CSA(F, tak, BN);
 % 
-plotTidalEllipses(U, F)
-plotTidalArrows(U, F)
+% %% Tidal Ellipses
+% % 
+% plotTidalEllipses(U, F)
+% plotTidalArrows(U, F)
 
 % plotTZ(U,F, -.6)
-plotTZ(U,F, 0)
+%plotTZ(U,F, 0)
 % plotTZ(U,F, .6)
 
 %% Save all figs automatically

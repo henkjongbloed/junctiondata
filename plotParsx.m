@@ -14,7 +14,7 @@ nexttile([1,2])
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_0))
 amax = max(max(abs(U.tid_pars(:,idx_0)), [], 'omitnan'));
 colormap(gca, U.velmap)
-caxis([-amax, amax])
+%caxis([-amax, amax])
 colorbar;
 axis tight
 title([U.BN, ': Subtidal Flow [m/s]'])
@@ -23,8 +23,8 @@ set(gca, 'XDir','reverse') % Very important
 nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_ampl(:,1)));
 amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
-colormap(gca, U.velmap(10:end,:))
-caxis([0, amax])
+colormap(gca, U.velmap)
+%caxis([0, amax])
 colorbar;
 title('M2 Amplitude [m/s]')
 set(gca,'xticklabel',[])
@@ -34,8 +34,8 @@ set(gca, 'XDir','reverse') % Very important
 nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_phase(:,1)))
 % amax = max(max(abs(U.tid_pars(:,idx_phase)), [], 'omitnan'));
-colormap(gca, U.phimap)
-caxis([-pi, pi])
+colormap(gca, U.velmap)
+%caxis([-pi/2, pi/2])
 colorbar;
 title('M2 Phase [rad]')
 axis tight
@@ -46,8 +46,8 @@ set(gca, 'XDir','reverse') % Very important
 nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_ampl(:,2)))
 amax = max(max(abs(U.tid_pars(:,idx_ampl(:,2))), [], 'omitnan'));
-colormap(gca, U.velmap(10:end,:))
-caxis([0, amax])
+colormap(gca, U.velmap)
+%caxis([0, amax])
 colorbar;
 title('M4 Amplitude [m/s]')
 set(gca, 'XDir','reverse') % Very important
@@ -57,8 +57,9 @@ axis tight
 nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_phase(:,2)))
 % amax = max(max(abs(U.tid_pars(:,idx_phase)), [], 'omitnan'));
-colormap(gca, U.phimap)
-caxis([-pi, pi])
+%colormap(gca, U.phimap)
+colormap(gca, U.velmap)
+%caxis([-pi/2, pi/2])
 colorbar;
 title('M4 Phase [rad]')
 axis tight
