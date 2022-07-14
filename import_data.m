@@ -24,7 +24,7 @@ if strcmp(DS,'NMOMNW15')
     ctd = load(['CTD',DS,'-2.mat']).CTD_20150914 ;
     BN = {' New Meuse'; ' Old Meuse'; ' Rotterdam Waterway'};
 else
-    ctd = load('OBSsal.mat').OBSsal;
+    ctd = load(['CTD',DS,'-2.mat']).OBSsal;
     BN = {' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'};
 end
 

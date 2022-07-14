@@ -85,8 +85,9 @@ T.velocity_model.constituentsW = [TM2; TM2/2];
 % % U.pars{1,1}(:,idx) = - U.pars{1,1}(:,idx);
 % U.pars{1,1}(:,1) = - U.pars{1,1}(:,1);
 
-[U.tid_pars, ~] = T.velocity_model.get_tidal_pars(U.pars{1,1}, U.cov_pars{1,1});
+[U.tid_pars, U.cov_tid_pars] = T.velocity_model.get_tidal_pars(U.pars{1,1}, U.cov_pars{1,1});
 U.pars = U.tid_pars;
+U.cov_pars = U.cov_tid_pars;
 wl = @(t) interp1(h.t, h.wl, t, 'linear');
 
 U.B = B; U.xs = xs; U.mesh_mean = mesh_mean; 
