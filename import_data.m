@@ -2,12 +2,12 @@ function [adcp, ctd, h] = import_data(RF, DS)
 
 addpath(strcat(RF,'Tools\adcptoolsGit')); %path to ADCPTools
 addpath(strcat(RF,'Tools\loess-master')); %path to loess-master
-addpath(strcat(RF,'Tools\T_Tide'))
-addpath(strcat(RF,'Tools\BrewerMap-master'));
-addpath(strcat(RF,'Tools\subaxis'));
+% addpath(strcat(RF,'Tools\T_Tide'))
+addpath(strcat(RF,'Tools\BrewerMap-master')); %path to BrewerMap (see github)
+% addpath(strcat(RF,'Tools\subaxis'));
 
 F2 = 'WP2\TwoJunctions\';
-addpath(strcat(RF,F2,'\data\processedData')); %.mat structs
+addpath(strcat(RF,F2,'\data\processedData')); %path to .mat structs of processed data
 
 adcp = load(['ADCP',DS], '-mat').adcp;
 h3 = load('NAPWaterLevels.mat');
@@ -28,7 +28,7 @@ else
     BN = {' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'};
 end
 
-ctd = split_branches(ctd, DS, BN);
+ctd = split_branches(ctd, DS, BN); %empirical function filtering the CTD data belonging to each transect
 % ctd = split_branches(ctd, DS, BN);
 % save(string(strcat('CTD',DS)) , 'ctd')
 

@@ -9,7 +9,9 @@ clearvars;
 % meters
 n = 3000;
 t = linspace(0, 13.5, n); %hours
-r = [2*rand([1,n])-1; sin(2*pi*t)/2+1/2*(rand([1,n])-1); rand([1,n])-1]; %x, y, z (normalized): Measurement locations.
+r = [2*rand([1,n])-1; 
+    sin(2*pi*t)/2+1/2*(rand([1,n])-1); 
+    rand([1,n])-1]; %x, y, z (normalized): Measurement locations.
 % figure
 % scatter3(r(1,:), r(2,:), r(3,:))
 r0 = mean(r,2);

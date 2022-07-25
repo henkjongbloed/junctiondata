@@ -31,5 +31,5 @@ for j = 1:length(tak)
     set(gca, 'XDir','reverse') % Very important
 end
 
-print('flow', '-dpng')
+% print('flow', '-dpng')
 end

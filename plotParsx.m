@@ -35,7 +35,7 @@ nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_phase(:,1)))
 % amax = max(max(abs(U.tid_pars(:,idx_phase)), [], 'omitnan'));
 colormap(gca, U.velmap)
-%caxis([-pi/2, pi/2])
+caxis([-pi/2, pi/2])
 colorbar;
 title('M2 Phase [rad]')
 axis tight
@@ -47,7 +47,7 @@ nexttile;
 U.mesh_mean.plot_vec(U.tid_pars(:,idx_ampl(:,2)))
 amax = max(max(abs(U.tid_pars(:,idx_ampl(:,2))), [], 'omitnan'));
 colormap(gca, U.velmap)
-%caxis([0, amax])
+caxis([0, amax])
 colorbar;
 title('M4 Amplitude [m/s]')
 set(gca, 'XDir','reverse') % Very important
@@ -59,7 +59,7 @@ U.mesh_mean.plot_vec(U.tid_pars(:,idx_phase(:,2)))
 % amax = max(max(abs(U.tid_pars(:,idx_phase)), [], 'omitnan'));
 %colormap(gca, U.phimap)
 colormap(gca, U.velmap)
-%caxis([-pi/2, pi/2])
+caxis([-pi/2, pi/2])
 colorbar;
 title('M4 Phase [rad]')
 axis tight

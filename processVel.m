@@ -86,8 +86,8 @@ T.velocity_model.constituentsW = [TM2; TM2/2];
 % U.pars{1,1}(:,1) = - U.pars{1,1}(:,1);
 
 [U.tid_pars, U.cov_tid_pars] = T.velocity_model.get_tidal_pars(U.pars{1,1}, U.cov_pars{1,1});
-U.pars = U.tid_pars;
-U.cov_pars = U.cov_tid_pars;
+% U.pars = U.tid_pars;
+% U.cov_pars = U.cov_tid_pars;
 wl = @(t) interp1(h.t, h.wl, t, 'linear');
 
 U.B = B; U.xs = xs; U.mesh_mean = mesh_mean; 
@@ -97,9 +97,12 @@ U.T = T;
 % U.cov_vel = cov_vel;
 U.eta = wl;
 
-U.BN = BN; 
+U.BN = BN;
+
 if any(strcmp({' New Meuse'; ' Old Meuse'; ' Rotterdam Waterway'}, BN))
     U.DS = 2015;
+else
+    U.DS = 2014;
 end
 
 

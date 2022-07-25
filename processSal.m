@@ -15,6 +15,8 @@ if strcmp(DS,'NMOMNW15')    % Change ADCP coordinates rather than CTD coordinate
 elseif strcmp(DS,'OMHA14')
     [templon, templat, ~]      = rd2wgs(ctd.X,ctd.Y); %Convert RD to LatLon %Correct
     [S.X, S.Y]      = wgs2utm(templat, templon); %Convert LatLon to UTM %Correct
+    S.Xold = S.X;
+    S.Yold = S.Y;
     ctddt = 6000;
     [ctdH, S.i] = getHour(ctd.T, ctddt); % dt = 6000 -> 1 sample per 6s?
     S.t = rescale(ctdH, min(U.adcpH), max(U.adcpH));

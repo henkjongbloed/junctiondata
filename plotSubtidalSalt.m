@@ -34,5 +34,5 @@ for j = 1:length(tak)
     end
     set(gca, 'XDir','reverse')
 end
-print('salt', '-dpng')
+% print('salt', '-dpng')
 end
