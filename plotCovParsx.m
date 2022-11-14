@@ -45,7 +45,7 @@ title([U.BN, ': Trace of Covariance Matrix'])
 set(gca, 'XDir','reverse') % Very important
 
 nexttile;
-U.mesh_mean.plot_vec(c(:,2:4));
+U.mesh_mean.plot(c(:,2:4));
 % amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
 colormap(gca, U.velmap)
 %caxis([0, amax])
@@ -56,7 +56,7 @@ axis tight
 set(gca, 'XDir','reverse') % Very important
 
 nexttile;
-U.mesh_mean.plot_vec(c(:,5:7));
+U.mesh_mean.plot(c(:,5:7));
 % amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
 colormap(gca, U.velmap)
 %caxis([0, amax])
@@ -67,7 +67,7 @@ axis tight
 set(gca, 'XDir','reverse') % Very important
 
 nexttile;
-U.mesh_mean.plot_vec(c(:,8:10));
+U.mesh_mean.plot(c(:,8:10));
 % amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
 colormap(gca, U.velmap)
 %caxis([0, amax])
@@ -78,7 +78,7 @@ axis tight
 set(gca, 'XDir','reverse') % Very important
 
 nexttile;
-U.mesh_mean.plot_vec(c(:,11:13));
+U.mesh_mean.plot(c(:,11:13));
 % amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
 colormap(gca, U.velmap)
 %caxis([0, amax])
@@ -89,7 +89,7 @@ axis tight
 set(gca, 'XDir','reverse') % Very important
 
 nexttile;
-U.mesh_mean.plot_vec(c(:,14:16));
+U.mesh_mean.plot(c(:,14:16));
 % amax = max(max(abs(U.tid_pars(:,idx_ampl(:,1))), [], 'omitnan'));
 colormap(gca, U.velmap)
 %caxis([0, amax])

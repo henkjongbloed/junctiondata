@@ -1,4 +1,4 @@
-function plotParsx(U)
+function plotPars0(U)
 
 % Ugly function hard coded for M2 and M4 (IAHR Abstract)
 figure;
@@ -11,7 +11,6 @@ idx_0 = [find(strcmp(names, 'u0: M0A')) , ...
 
 idx_a2 = [find(strcmp(names, 'u0: M2A'))];
 idx_b2 = [find(strcmp(names, 'u0: M2B'))];
-
 idx_a4 = [find(strcmp(names, 'u0: M4A'))];
 idx_b4 = [find(strcmp(names, 'u0: M4B'))];
 

@@ -22,7 +22,7 @@ for rt = 1:length(mesh)
 %     hold on
 %     plot(mS)
     F.s{rt} = mS;
-    F.u{rt} = U.T.velocity_model.get_velocity(U.pars{1, 1}, U.cov_pars{1,1}, 3600*24*dt(rt));
+    F.u{rt} = U.T.velocity_model.get_velocity(U.pars, U.cov_pars, 3600*24*dt(rt));
 %     [vel, cov_vel] = T.velocity_model.get_velocity(U.pars{1,1}, U.cov_pars{1,1});
 end
 

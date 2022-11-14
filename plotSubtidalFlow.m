@@ -9,7 +9,7 @@ for j = 1:length(tak)
     %     b = tak(j);
     subplot(length(tak), 1, j)
 %     lnorm = 1; %sqrt(subtidal_u(:,2).^2 + subtidal_u(:,3).^2);
-    U{j}.mesh_mean.plot_vec(subtidal_u)
+    U{j}.mesh_mean.plot(subtidal_u)
 %     max(subtidal_u(:,2))
 %     max(subtidal_u(:,3))
 
