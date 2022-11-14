@@ -13,7 +13,7 @@ for j = 1:length(tak)
         csa = [(F{1, j}.uc{1, 1} + F{1, j}.uc{3, 1}(hr)), ...
             (F{1, j}.vc{1, 1} + F{1, j}.vc{3, 1}(hr)), ...
             mean(F{j}.u{plotT(hr)}(:,3), 'omitnan')];
-        F{j}.mesh(plotT(hr)).plot_vec(F{j}.u{plotT(hr)} - csa) % Look at this
+        F{j}.mesh(plotT(hr)).plot(F{j}.u{plotT(hr)} - csa) % Look at this
         hold on
 %         quiver(0, F{j}.mesh(plotT(hr)).water_level, vm, wm, "LineWidth", 3)
 %         caxis([-1.5,1.5])

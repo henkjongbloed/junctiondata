@@ -13,10 +13,10 @@ for j = 1:numel(U)
     plot(U{j}.mesh_mean.x_middle  , U{j}.mesh_mean.y_middle, 'k') % Transect trajectory mean
 
 
-    [uxy0, vxy0] = U{j}.xs.sn2xy_pars(F{j}.uc{1, 2}, F{j}.vc{1, 2}); % Subtidal flow
-    [uxy1, vxy1] = U{j}.xs.sn2xy_pars(F{j}.uc{2, 2}, F{j}.vc{2, 2}); % Tidal flow
-    [uxy2_s, vxy2_s] = U{j}.xs.sn2xy_pars(squeeze(F{j}.uc{3, 2}(:,:,1)), squeeze(F{j}.vc{3, 2}(:,:,1))); % Residual flow t,y,z
-    [uxy2_b, vxy2_b] = U{j}.xs.sn2xy_pars(squeeze(F{j}.uc{3, 2}(:,:,end)), squeeze(F{j}.vc{3, 2}(:,:,end))); % Residual flow t,y,z
+    [uxy0, vxy0] = U{j}.xs.sn2xy_vel(F{j}.uc{1, 2}, F{j}.vc{1, 2}); % Subtidal flow
+    [uxy1, vxy1] = U{j}.xs.sn2xy_vel(F{j}.uc{2, 2}, F{j}.vc{2, 2}); % Tidal flow
+    [uxy2_s, vxy2_s] = U{j}.xs.sn2xy_vel(squeeze(F{j}.uc{3, 2}(:,:,1)), squeeze(F{j}.vc{3, 2}(:,:,1))); % Residual flow t,y,z
+    [uxy2_b, vxy2_b] = U{j}.xs.sn2xy_vel(squeeze(F{j}.uc{3, 2}(:,:,end)), squeeze(F{j}.vc{3, 2}(:,:,end))); % Residual flow t,y,z
 
     u0 = ax*uxy0; v0 = ay*vxy0;
     u1 = ax*(uxy0 + uxy1);  v1 = ay*(vxy0 + vxy1); 
@@ -26,7 +26,7 @@ for j = 1:numel(U)
 
     %     uxy = F{j}.uc{1, 3};
 %     vxy = F{j}.vc{1, 3};
-%      = U{j}.xs.sn2xy_pars(F{j}.vc{1, 3});    
+%      = U{j}.xs.sn2xy_vel(F{j}.vc{1, 3});    
     plot(U{j}.mesh_mean.x_middle + u0 , U{j}.mesh_mean.y_middle + v0, 'k', 'LineWidth', 2) % Subtidal flow
 
     % Tidal Ellipses
@@ -66,10 +66,10 @@ for j = 1:numel(U)
     plot(U{j}.mesh_mean.x_middle  , U{j}.mesh_mean.y_middle, 'k') % Transect trajectory mean
 
 
-    [uxy0, vxy0] = U{j}.xs.sn2xy_pars(F{j}.uc{1, 2}.*F{j}.sc{1, 2}, F{j}.vc{1, 2}.*F{j}.sc{1, 2}); % Subtidal flow
-    [uxy1, vxy1] = U{j}.xs.sn2xy_pars(F{j}.uc{2, 2}.*F{j}.sc{2, 2}, F{j}.vc{2, 2}.*F{j}.sc{2, 2}); % Tidal flow
-    [uxy2_s, vxy2_s] = U{j}.xs.sn2xy_pars(squeeze(F{j}.uc{3, 2}(:,:,1).*F{j}.sc{3, 2}(:,:,1)), squeeze(F{j}.vc{3, 2}(:,:,1).*F{j}.sc{3, 2}(:,:,1))); % Residual flow t,y,z
-    [uxy2_b, vxy2_b] = U{j}.xs.sn2xy_pars(squeeze(F{j}.uc{3, 2}(:,:,end).*F{j}.sc{3, 2}(:,:,end)), squeeze(F{j}.vc{3, 2}(:,:,end).*F{j}.sc{3, 2}(:,:,end))); % Residual flow t,y,z
+    [uxy0, vxy0] = U{j}.xs.sn2xy_vel(F{j}.uc{1, 2}.*F{j}.sc{1, 2}, F{j}.vc{1, 2}.*F{j}.sc{1, 2}); % Subtidal flow
+    [uxy1, vxy1] = U{j}.xs.sn2xy_vel(F{j}.uc{2, 2}.*F{j}.sc{2, 2}, F{j}.vc{2, 2}.*F{j}.sc{2, 2}); % Tidal flow
+    [uxy2_s, vxy2_s] = U{j}.xs.sn2xy_vel(squeeze(F{j}.uc{3, 2}(:,:,1).*F{j}.sc{3, 2}(:,:,1)), squeeze(F{j}.vc{3, 2}(:,:,1).*F{j}.sc{3, 2}(:,:,1))); % Residual flow t,y,z
+    [uxy2_b, vxy2_b] = U{j}.xs.sn2xy_vel(squeeze(F{j}.uc{3, 2}(:,:,end).*F{j}.sc{3, 2}(:,:,end)), squeeze(F{j}.vc{3, 2}(:,:,end).*F{j}.sc{3, 2}(:,:,end))); % Residual flow t,y,z
 
     u0 = ax*uxy0; v0 = ay*vxy0;
     u1 = ax*(uxy0 + uxy1);  v1 = ay*(vxy0 + vxy1); 
@@ -81,7 +81,7 @@ for j = 1:numel(U)
 
     %     uxy = F{j}.uc{1, 3};
 %     vxy = F{j}.vc{1, 3};
-%      = U{j}.xs.sn2xy_pars(F{j}.vc{1, 3});    
+%      = U{j}.xs.sn2xy_vel(F{j}.vc{1, 3});    
     plot(U{j}.mesh_mean.x_middle + u0 , U{j}.mesh_mean.y_middle + v0, 'k', 'LineWidth', 2) % Subtidal flow
 
     % Tidal Ellipses

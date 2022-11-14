@@ -59,52 +59,10 @@ end
             set(gca,'NextPlot',hold_stat);
         end
 
-        function plot_vec(obj,var)
-% Plot the mesh optionally colored with a variable, with an optional
-% superimposed quiver plot vector field
-%
-%   plot(obj) plots the mesh with the bed and water surface
-%
-%   plot(obj,var) plot the mesh and color the cells with the varibale var
-%   plot(obj, varx, vary, varz) plot the mesh and color the cells with the
-%   varibale varx, with arrows starting at mesh cells and having components
-%   vary and varz
-%
-%   see also: SigmaZetaMesh, plot3
-            if ~isscalar(obj)
-                for ce=1:numel(obj)
-                    subplot(numel(obj),1,ce)
-                    plot(obj(ce))
-                end
-                return
-            end
-            hold_stat=get(gca,'NextPlot');
-            plot(obj.nb_all,obj.zb_all,'k','Linewidth',2)
-            hold on
-            plot_var=nan(obj.ncells,3);
-            if nargin > 1
-                assert(size(var,1)==obj.ncells, 'Variable to plot should have same number of elements as cells in the mesh');
-                plot_var(:,1)=var(:,1);
-            end
-            if size(var,2) > 1
-%                 assert(numel(vary)==obj.ncells, 'Variable to plot should have same number of elements as cells in the mesh');
-                plot_var(:,2)=var(:,2);
-            end
-            if size(var,2) > 2
-%                 assert(numel(varz)==obj.ncells, 'Variable to plot should have same number of elements as cells in the mesh');
-                plot_var(:,3)=var(:,3);
-            end
-            patch(obj.n_patch, obj.z_patch, plot_var(:,1), 'LineStyle', 'None');
-            q=quiver(obj.n_middle(obj.col_to_cell)', obj.z_center, plot_var(:,2), plot_var(:,3), .2, 'k');
-%             q.ShowArrowHead = 'off';
-%             q.Marker = '.';
-            plot(obj.nw,obj.nw*0+obj.water_level,'b','Linewidth',2)
-            set(gca,'NextPlot',hold_stat);
-        end
 
 
 
-        function [us,un]=xy2sn_pars(obj, u, v)
+        function [us,un]=xy2sn_pars(obj, u, v) %-> exactly same as xy2sn_vel
             % Transform parameter vectors as obtained as output from the 
             % get_parameters function from xy to sn coordinates
             %
@@ -122,7 +80,7 @@ end
         end
 
 
-        function [u,v]=sn2xy_pars(obj, us, un)
+        function [u,v]=sn2xy_pars(obj, us, un) %-> same as vel
             % Transform parameter vectors as obtained as output from the 
             % get_parameters function from xy to sn coordinates
             %
