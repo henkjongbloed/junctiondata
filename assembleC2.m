@@ -27,17 +27,17 @@ for c = 1:LBS.mesh.ncells %rows
     if doma==0 || doma==1 || doma == 5
         dsig = sig_center(adj(2))-sig_center(adj(4)); % central difference
     elseif doma ==2 || doma==3|| doma==4
-        dsig = 2*(sig_center(c)-sig_center(adj(4))); % central difference
+        dsig = sig_center(c)-sig_center(adj(4)); % one-sided difference
     else
-        dsig = 2*(sig_center(adj(2))-sig_center(c)); % central difference
+        dsig = sig_center(adj(2))-sig_center(c); % one-sided difference
     end
 
     if doma==0 || doma==3 || doma == 7
         dn = n_center(adj(1))-n_center(adj(3)); % central difference
     elseif doma ==1 || doma==2|| doma==8
-        dn = 2*(n_center(c)-n_center(adj(3))); % central difference
+        dn = n_center(c)-n_center(adj(3)); % one-sided difference
     else
-        dn = 2*(n_center(adj(1))-n_center(c)); % central difference
+        dn = n_center(adj(1))-n_center(c); % one-sided difference
     end
     % Subtidal
     row = row_idx*ones(1,9); % 9 terms

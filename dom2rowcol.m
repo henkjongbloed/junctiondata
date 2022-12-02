@@ -1,4 +1,6 @@
 function [row, col, val] = dom2rowcol(par_names_tot, doma, c, adj, const, row, val)
+% Helper function for the extended continuity matrix assembly
+% (assembleC2.m)
 
 if strcmp(const, 'M0A')
     if doma == 0

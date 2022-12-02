@@ -26,10 +26,10 @@ for i = 1:Np
 %         w(i) = w(i)*10;
 %     end
     if contains(par_names{i}, 'v') || contains(par_names{i}, 'w')
-        w(i) = w(i)*10;
+        w(i) = w(i)*1;
     end
     if contains(par_names{i}, 'dy') || contains(par_names{i}, 'dx')
-        w(i) = w(i)*100;
+        w(i) = w(i)*1;
     end
 end
 W = sparse(diag(repmat(w,LBS.mesh.ncells,1)));
@@ -46,9 +46,6 @@ for c = 1:LBS.mesh.ncells %rows
         cols = [cols col];
         vals = [vals val];
     end
-%     [row, col, val] = dom2rowcol(par_names_tot, doma, c, adj, 'M0A', row, val);
-
-%     row_idx = row_idx + 1;
 end
 D = D1 + sparse(rows, cols, vals, NNp, NNp);
 
