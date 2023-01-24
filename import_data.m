@@ -8,7 +8,7 @@ addpath(strcat(RF,'Tools\BrewerMap-master')); %path to BrewerMap (see github)
 
 F2 = 'WP2\TwoJunctions\';
 addpath(strcat(RF,F2,'\data\processedData')); %path to .mat structs of processed data
-
+addpath(strcat(RF,'Tools\plotting\plotting'));
 adcp = load(['ADCP',DS], '-mat').adcp;
 h3 = load('NAPWaterLevels.mat');
 h = h3.(['H',DS]); %bit ugly
@@ -29,6 +29,8 @@ else
 end
 
 ctd = split_branches(ctd, DS, BN); %empirical function filtering the CTD data belonging to each transect
+
+% plot_map(adcp)
 % ctd = split_branches(ctd, DS, BN);
 % save(string(strcat('CTD',DS)) , 'ctd')
 
