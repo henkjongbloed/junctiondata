@@ -1,22 +1,46 @@
-function plotMap(U,S)
+function plotMap(mesh, DS)
 
-%
-if U{1}.DS==2015
-    latlim = 51.893825 + .006*[-1.5, 1];
-    lonlim = 4.319825 + .0025*[-1, 1];
+if DS==2015
+    lat0 = 51.8938250;
+    lon0 = 4.3198250;
+    
 else
-    latlim = 51.865964 + .006*[-1, 1];
-    lonlim = 4.332862 + .0025*[-1, 1];
+    lat0 = 51.8659640;
+    lon0 = 4.332862;
 end
-figure;
-geolimits(latlim,lonlim)
+[xr, xl] = utm2ll(mesh.xw, mesh.yw, 31, 'wgs84');
+% figure;
+% subplot(1,2,1)
+makefigure(10,7.5)
+
+latlim = lat0 + 6*.006*[-.5, 4];
+lonlim = lon0 + 10*.0025*[-15, 1];
+geolimits(latlim ,lonlim)
 geobasemap("satellite")
 hold on
+geoplot(xr, xl,'w*', 'MarkerSize',5)
+% struct(gca)
+% set(gca, 'LongitudeString', 'Longitude', 'interpreter', 'latex')
+% set(gca, 'LatitudeString', 'Latitude', 'interpreter', 'latex')
 
-for ct = 1:numel(S)
-    [lat,lon] = utm2ll(S{ct}.Xold, S{ct}.Yold, 31, 'wgs84');
-    geoplot(lat,lon,':w')
-end
+% gca.XLabel.Interpreter = 'latex';
+% gca.YLabel.Interpreter = 'latex';
+makefigure(10,7.5)
+
+
+latlim = lat0 + .006*[-1, 1];
+lonlim = lon0 + + .0025*[-1, 1];
+geolimits(latlim , lonlim )
+geobasemap("satellite")
+hold on
+geoplot(xr, xl,'w')
+geoplot(xr, xl,'w*', 'MarkerSize',5)
+XLabel.Interpreter = 'latex';
+YLabel.Interpreter = 'latex';
+% for ct = 1:numel(S)
+%     [lat,lon] = utm2ll(S{ct}.Xold, S{ct}.Yold, 31, 'wgs84');
+%     geoplot(lat,lon,':w')
+% end
 
 
 end

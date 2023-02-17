@@ -1,78 +1,36 @@
-function [V, U] = processVel(ADCP, h, BN)
+%% Script Lei
+load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\raw_CYP3.mat')
+ADCP = raw_dat;
+load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\B-CYP3.mat')
+
+load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\M.mat')
+load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\MESH-GEN.mat')
+%load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\VMADCP.mat')
 
 V = VMADCP(ADCP); % create VMADCP object
 V.horizontal_position_provider(1) = [];
-V.water_level_object = VaryingWaterLevel(datetime(datevec(h.t)), h.wl); % set water level to varying
-V.water_level_object.constituents = {'M2', 'M4'};
-V.water_level_object.get_parameters();
+V.water_level_object = ConstantWaterLevel;%  VaryingWaterLevel(datetime(datevec(h.t)), h.wl); % set water level to varying
+%V.water_level_object.constituents = {};
+%V.water_level_object.get_parameters();
 
-V.water_level_object.get_omega();
+% V.water_level_object.get_omega();
 
 
 % plot(h.t, h.wl)
 %disp(V.water_level)
 %% create bathymetry
-B = BathymetryScatteredPoints(V); % create a bathymetry (includes all data)
-%load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\LeiData\B-CYP3.mat')
+%B = BathymetryScatteredPoints(V); % create a bathymetry (includes all data)
 % B.plot
 
 %B.plot_residuals % have a good look at the residuals of the bathymetry.
 xs = XSection(V); % define the cross-section
-if any(strcmp({' New Meuse'; ' Rotterdam Waterway';' Hartel Canal'}, BN))
-    xs.revert();
-end
-hold on
-xs.plot()
-hold off
 
-U.BN = BN;
-
-if any(strcmp({' New Meuse'; ' Old Meuse'; ' Rotterdam Waterway'}, BN))
-    U.DS = 2015;
-else
-    U.DS = 2014;
-end
-
+mesh_mean = M;
 
 %% create mesh
-mesh_maker = SigmaZetaMeshFromVMADCP(V, B, xs); % mesh generator
 
-mesh_maker.deltan = 100;
-mesh_maker.deltaz = 2;
-
-% mesh_maker.deltan = 12;
-% mesh_maker.deltaz = 1.5;
-
-
-mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
-% mesh_mean.plot()
-
-% if strcmp(BN, ' OMN')
-%     mesh_maker.deltan = 3;
-% end
-%
-% if strcmp(BN, ' OM')
-%     mesh_maker.deltan = 5;
-% end
-
-Bw = mesh_mean.nw(2) - mesh_mean.nw(1); % Little fishy but it works
-Hw = abs(min(mesh_mean.zb_all));
-
-%mesh_maker.deltan = (Bw + 1)/12;
-%mesh_maker.deltaz = 2*Hw/8;
-
-mesh_maker.deltan = (Bw + 1)/25;
-mesh_maker.deltaz = (Hw+1)/13;
-
-mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
-% mesh_mean.get_neighbors(cell_idx)
-% figure;
-% plotMap(mesh_mean, U.DS)
-% figure;
-% mesh_mean.plot()
-% hold on
-% plot(mesh_mean.n_middle(mesh_mean.col_to_cell), mesh_mean.z_center, '*')
-
+mesh_mean.plot()
+hold on
 for c = 1:mesh_mean.ncells
     [nb, dom] = mesh_mean.get_neighbors(c);
     
@@ -132,12 +90,12 @@ elseif strcmp(model, 'taylorTidal')
     T.velocity_model.n_order = [1,1,1];
     T.velocity_model.sigma_order = [1,1,1];
     T.velocity_model.z_order = [0,0,0];
-    %T.velocity_model.constituentsU = {};
-    %T.velocity_model.constituentsV = {};
-    %T.velocity_model.constituentsW = {};
-    T.velocity_model.constituentsU = {'M2', 'M4'};
-    T.velocity_model.constituentsV = {'M2', 'M4'};
-    T.velocity_model.constituentsW = {'M2', 'M4'};
+    T.velocity_model.constituentsU = {};
+    T.velocity_model.constituentsV = {};
+    T.velocity_model.constituentsW = {};
+    %T.velocity_model.constituentsU = {'M2', 'M4'};
+    %T.velocity_model.constituentsV = {'M2', 'M4'};
+    %T.velocity_model.constituentsW = {'M2', 'M4'};
     % Reg_Pars
     opts.reg_vary = 'coupled'; % coupled, full
     opts.reg_iter = [12,nan,12,nan, nan]; %if reg_vary neq none
@@ -200,7 +158,4 @@ U.salmap = brewermap(15, 'YlOrBr');
 U.velmap = brewermap(20, 'RdBu');
 U.phimap = [U.velmap ;flipud(U.velmap)];
 U.Bw = Bw;
-
-end
-
 
