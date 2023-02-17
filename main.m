@@ -30,14 +30,14 @@ BNs = {{'HK2'; 'OMS2'; 'OMN2'},...
 
 %% Import preprocessed semi-raw data (ADCP / CTD / H structs)
 
-%[adcp, ctd, h] = import_data(RF, DS);
+[adcp, ctd, h] = import_data(RF, DS);
 %[adcp, ctd, h] = import_data_(RF, DS);
-adcp{1} = raw_dat;
+%adcp{1} = raw_dat;
 %% Data analysis
 plotvars = 1;
 for j = 1:length(tak)
     b = tak(j);
-    [V{j}, U{j}] = processVel(adcp{b}, 0, BN{b}); % V = VMADCP objects, U = generic velocity data (plus more)
+    [V{j}, U{j}] = processVel(adcp{b}, h, BN{b}); % V = VMADCP objects, U = generic velocity data (plus more)
     
     %     S{j} = processSal(U{j}, ctd{b}, DS); %S = Salinity data
     %     F{j} = processHours(U{j}, S{j});

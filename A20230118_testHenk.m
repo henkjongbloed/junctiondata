@@ -60,8 +60,8 @@ if readnew      % read adcp data
     %     save([date, '_adcp', num2str(freq), '_ALL.mat'], 'adcp', 'ldb*', 'freq', 'date', 'nloc', 'wl', 'x', 'y');
 else
     %     load([date, '_adcp', num2str(freq), '_CROSS.mat'])
-    load([date, '_adcp', num2str(freq), '_LONG.mat'])
-    load(['adcp', num2str(freq), '_FULL_', date, '.mat'])
+    %load([date, '_adcp', num2str(freq), '_LONG.mat'])
+    load('C:\Users\jongb013\Documents\PHD\2-Programming\WP2\TwoJunctions\data\20221121_iris\adcp600_FULL_20210308.mat')
 end
 
 %cmap = polarmap(64);    % Define colormap for certain figures
@@ -71,7 +71,7 @@ f=25;                   % Scale factor for quivers
 rtime = datetime(datestr(wl.Time));
 
 %for n = 1:length(adcp_full)
-V = VMADCP(adcp_full);
+V = rdi.VMADCP(adcp_full);
 %     VM{n}.type = ADCP_Type.RioGrande;
 
 wl_int = interp1(rtime, wl.Val, V.time);

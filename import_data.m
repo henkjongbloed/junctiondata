@@ -9,7 +9,26 @@ addpath(strcat(RF,'Tools\BrewerMap-master')); %path to BrewerMap (see github)
 F2 = 'WP2\TwoJunctions\';
 addpath(strcat(RF,F2,'\data\processedData')); %path to .mat structs of processed data
 addpath(strcat(RF,'Tools\plotting\plotting'));
-adcp = load(['ADCP',DS], '-mat').adcp;
+
+processedADCP = 1;
+if processedADCP
+    adcp = load(['ADCP',DS], '-mat').adcp;
+else
+    % load new data
+    datloc = strcat(RF,F2,'data\',DS);
+    if strcmp(DS,'NMOMNW15')
+        adcp{1} = readDeployment('OSR', [datloc, '\data_meting_14sep2015\raai1']);
+        adcp{2} = readDeployment('OSR', [datloc, '\data_meting_14sep2015\raai2']);
+        adcp{3} = readDeployment('OSR', [datloc, '\data_meting_14sep2015\raai3']);
+    else
+        adcp{1} = readDeployment('OMHA', [datloc, '\master\raai1']);
+        adcp{2} = readDeployment('OMHA', [datloc, '\master\raai2']);
+        adcp{3} = readDeployment('OMHA', [datloc, '\master\raai3']);
+    end
+end
+
+
+
 h3 = load('NAPWaterLevels.mat');
 h = h3.(['H',DS]); %bit ugly
 h.wl = h.wl/100; % cm to m
@@ -17,7 +36,6 @@ h.wl = h.wl/100; % cm to m
 
 % ctd = load(['CTD', DS], '-mat').ctd;
 % h.time            = datetime(h.date, 'ConvertFrom', 'datenum', 'Format', 'HH:mm:ss');
-
 
 
 if strcmp(DS,'NMOMNW15')
