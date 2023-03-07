@@ -1,6 +1,6 @@
 function [adcp, ctd, h] = import_data(RF, DS)
 
-addpath(strcat(RF,'Tools\adcptoolsGit')); %path to ADCPTools
+addpath(genpath(strcat(RF,'Tools\adcptoolsGit'))); %path to ADCPTools
 addpath(strcat(RF,'Tools\loess-master')); %path to loess-master
 % addpath(strcat(RF,'Tools\T_Tide'))
 addpath(strcat(RF,'Tools\BrewerMap-master')); %path to BrewerMap (see github)

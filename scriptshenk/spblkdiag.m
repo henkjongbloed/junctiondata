@@ -7,16 +7,7 @@ function M = spblkdiag(varargin)
 % Y = SPBLKDIAG(A,B,...)  produces  SPARSE( 0 B .. 0 )
 %                                         ( 0 0 ..   )
 %
-% with A, B, ... matrices.
-%
-% See also blkdiag, speye, spdiags.
-% Authors:
-%{
-Name  : Rody P.S. Oldenhuis
-E-mail: oldenhuis@gmail.com
-%}
-% If you find this work useful, please consider a donation:
-% https://www.paypal.me/RodyO/3.5
+% but much more efficient than calling sparse after blkdiag
     % Basic checks on input/output consistency
     assert(nargin > 0,...
           [mfilename ':inargcount'],...
