@@ -10,7 +10,7 @@ F2 = 'WP2\TwoJunctions\';
 addpath(strcat(RF,F2,'\data\processedData')); %path to .mat structs of processed data
 addpath(strcat(RF,'Tools\plotting\plotting'));
 
-processedADCP = 1;
+processedADCP = 0;
 if processedADCP
     adcp = load(['ADCP',DS], '-mat').adcp;
 else

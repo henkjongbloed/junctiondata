@@ -81,9 +81,13 @@ R.assemble_matrices()
 op = SolverOptions();
 S = RegularizedSolver(V, mesh_mean, bathy, xs, ef, data_model, R);
 
-MP = S.get_parameters();
 
-MP.plot_solution();
+
+
+% data_model.get_model()
+% data_model.rotate_matrix()
+% data_model.rotate_model()
+MP = S.get_parameters();
 
 
 
