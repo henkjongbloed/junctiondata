@@ -19,7 +19,7 @@ cd([RF,'WP2\TwoJunctions\code'])
 % tak = 1;
 
 ds = 1;
-tak = 1;
+tak = 2;
 
 DS = {'OMHA14','NMOMNW15'}; DS = DS{ds};
 BN = {{' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'},...
