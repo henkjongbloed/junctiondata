@@ -9,7 +9,7 @@ RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
 
 ds = 1;
-tak = 1;
+tak = 2;
 
 DS = {'OMHA14','NMOMNW15'}; DS = DS{ds};
 BN = {{' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'},...
@@ -25,15 +25,16 @@ BNs = {{'HK2'; 'OMS2'; 'OMN2'},...
 V = rdi.VMADCP(adcp{tak}); % create VMADCP object
 V.horizontal_position_provider(1) = [];
 
+constituents = {'M2', 'M4'};
+
 water_level = VaryingWaterLevel(datetime(datevec(h.t)), h.wl); % set water level to varying
-water_level.model = TidalModel(constituents = {'M2', 'M4'});
+water_level.model = TidalModel(constituents = constituents);
 water_level.model.components = {'eta'}; % Scalar
 water_level.get_parameters();
 
 V.water_level_object = water_level;
 %% create bathymetry
 bathy = BathymetryScatteredPoints(V); % create a bathymetry (includes all data)
-
 xs = XSection(V); % define the cross-section
 if any(strcmp({' New Meuse'; ' Rotterdam Waterway';' Hartel Canal'}, BN))
     xs.revert();
@@ -52,6 +53,7 @@ end
 
 
 %% create mesh
+
 mesh_maker = SigmaZetaMeshFromVMADCP(V, bathy, xs); % mesh generator
 mesh_maker.deltan = 100;
 mesh_maker.deltaz = 2;
@@ -59,8 +61,12 @@ mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
 Bw = mesh_mean.nw(2) - mesh_mean.nw(1); % Little fishy but it works
 Hw = abs(min(mesh_mean.zb_all));
 mesh_maker.deltan = (Bw + 1)/25;
-mesh_maker.deltaz = (Hw+1)/13;
+mesh_maker.deltaz = (Hw+1)/11;
 mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
+mesh_mean.plot3()
+hold on
+bathy.plot
+
 %% split repeat_transects
 ef = EnsembleFilter(V);
 
@@ -71,19 +77,26 @@ ef = EnsembleFilter(V);
 
 %data_model = TaylorTidalModel(taylor = tay, tidal = tid, rotation = pi/2);
 
-data_model = TaylorModel(s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
-
+% data_model = TaylorTidalModel(constituents = constituents, s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
+data_model = TaylorTidalModel(constituents = constituents, s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
+phi = xs.angle();
+data_model.rotation = -phi;
 
 
 R = Regularization(bathy = bathy, xs = xs, mesh = mesh_mean, model = data_model);
 R.assemble_matrices()
 
 op = SolverOptions();
-S = RegularizedSolver(V, mesh_mean, bathy, xs, ef, data_model, R);
+op.pcg_iter = 1000;
+op.pcg_tol = 1e-7;
+op.reg_pars = {[0,0,0,0,0], [1,1,1,1,1], 10*[1,1,1,1,1], 1000*[1,1,1,1,1],};
+
+S = RegularizedSolver(V, mesh_mean, bathy, xs, ef, data_model, R, op);
+%S = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, data_model);
 
 MP = S.get_parameters();
 
-MP.plot_solution();
+MP.plot_solution({'u0: M2a', 'v0: M2a', 'w0: M2a'});
 
 
 
