@@ -8,8 +8,8 @@ figsave = 0;
 RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
 
-ds = 1;
-tak = 2;
+ds = 2;
+tak = 1;
 
 DS = {'OMHA14','NMOMNW15'}; DS = DS{ds};
 BN = {{' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'},...
@@ -23,10 +23,14 @@ BNs = {{'HK2'; 'OMS2'; 'OMN2'},...
 [adcp, ctd, h] = import_data(RF, DS);
 
 V = rdi.VMADCP(adcp{tak}); % create VMADCP object
-V.horizontal_position_provider(1) = [];
+% V.horizontal_position_provider(1) = [];
+mtc= MagneticDeviationTwoCycle;
+mtc.plot_tracks(V)
+mtc.estimate_deviation(V)
+mtc.estimate_deviation(V,true)
 
 constituents = {'M2', 'M4'};
-
+% 
 water_level = VaryingWaterLevel(datetime(datevec(h.t)), h.wl); % set water level to varying
 water_level.model = TidalModel(constituents = constituents);
 water_level.model.components = {'eta'}; % Scalar
@@ -35,13 +39,25 @@ water_level.get_parameters();
 V.water_level_object = water_level;
 %% create bathymetry
 bathy = BathymetryScatteredPoints(V); % create a bathymetry (includes all data)
-xs = XSection(V); % define the cross-section
+
+dat_selection = "default";
+switch dat_selection
+    case "manual"
+        [ef, xs] = cross_section_selector(V);
+    case "default"
+        xs = XSection(V); % define the cross-section
+        ef = EnsembleFilter(V);
+    case "saved" % Save ensemblefilter and cross-section once
+        xs = XSection(V); % define the cross-section
+        ef = EnsembleFilter(V);
+    otherwise 
+        xs = XSection(V); % define the cross-section
+        ef = EnsembleFilter(V);
+end
+
 if any(strcmp({' New Meuse'; ' Rotterdam Waterway';' Hartel Canal'}, BN))
     xs.revert();
 end
-hold on
-xs.plot()
-hold off
 
 U.BN = BN;
 
@@ -60,17 +76,13 @@ mesh_maker.deltaz = 2;
 mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
 Bw = mesh_mean.nw(2) - mesh_mean.nw(1); % Little fishy but it works
 Hw = abs(min(mesh_mean.zb_all));
-mesh_maker.deltan = (Bw + 1)/25;
+mesh_maker.deltan = (Bw + 1)/21;
 mesh_maker.deltaz = (Hw+1)/11;
 mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
-mesh_mean.plot3()
-hold on
-bathy.plot
+% mesh_mean.plot3()
+% hold on
+% bathy.plot
 
-%% split repeat_transects
-ef = EnsembleFilter(V);
-
-%%
 
 %tid = TidalModel(constituents = {'M2', 'M4'});
 %tay = TaylorModel(s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
@@ -78,29 +90,76 @@ ef = EnsembleFilter(V);
 %data_model = TaylorTidalModel(taylor = tay, tidal = tid, rotation = pi/2);
 
 % data_model = TaylorTidalModel(constituents = constituents, s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
+%phi = linspace(-pi, pi, 5);
+% Benchmark: classic fit
+% classic_model = TidalModel(constituents = constituents, rotation = 0);
+% 
+% % classic_model.rotation = -phi;
+% T = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, classic_model);
+% pars0 = T.get_parameters();
+% figure;
+% tiledlayout('flow');nexttile;
+% for i = 1:size(pars0, 2)
+%     mesh_mean.plot(pars0(:,i));colorbar;nexttile;
+% end
+% 
+% 
+% % Benchmark: classic fit
+% classic_model = TidalModel(constituents = constituents, rotation = phi);
+% 
+% % classic_model.rotation = -phi;
+% T = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, classic_model);
+% pars1 = T.get_parameters();
+% figure;
+% tiledlayout('flow');nexttile;
+% for i = 1:size(pars1, 2)
+%     mesh_mean.plot(pars1(:,i));colorbar;nexttile;
+% end
+% 
+% 
+% % Benchmark: classic fit
+% classic_model = TidalModel(constituents = constituents, rotation = -phi);
+% 
+% % classic_model.rotation = -phi;
+% T = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, classic_model);
+% pars2 = T.get_parameters();
+% figure;
+% tiledlayout('flow');nexttile;
+% for i = 1:size(pars2, 2)
+%     mesh_mean.plot(pars2(:,i));colorbar;nexttile;
+% end
 data_model = TaylorTidalModel(constituents = constituents, s_order = [1,1,1], n_order = [1,1,1], sigma_order = [1,1,1]);
-phi = xs.angle();
-data_model.rotation = -phi;
 
+opts = SolverOptions();
+opts.algorithm = "pcg";
+opts.pcg_iter = 4000;
+opts.pcg_tol = 1e-10;
+opts.reg_pars = {0*[1,1,1,1,1], 1*[100,100,10,10,100]};
 
 R = Regularization(bathy = bathy, xs = xs, mesh = mesh_mean, model = data_model);
 R.assemble_matrices()
 
-op = SolverOptions();
-op.pcg_iter = 1000;
-op.pcg_tol = 1e-7;
-op.reg_pars = {[0,0,0,0,0], [1,1,1,1,1], 10*[1,1,1,1,1], 1000*[1,1,1,1,1],};
-
-S = RegularizedSolver(V, mesh_mean, bathy, xs, ef, data_model, R, op);
-%S = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, data_model);
-
+data_model.rotation = xs.angle();
+S = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, data_model, R, opts);
 MP = S.get_parameters();
 
-MP.plot_solution({'u0: M2a', 'v0: M2a', 'w0: M2a'});
+%mesh_mean.plot(MP.pars(:,3))
+%colorbar;
 
 
+% MP.cross_validate();
+
+figure;
+MP.plot_solution({data_model.names{1}{1:20}}, 1:2);
+
+figure;
+MP.plot_solution({data_model.names{2}{1:20}}, 1:2);
+
+figure;
+MP.plot_solution({data_model.names{3}{1:20}}, 1:2);
 
 
+%%
 
 %[adcp, ctd, h] = import_data_(RF, DS);
 %adcp{1} = raw_dat;
