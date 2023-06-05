@@ -93,7 +93,7 @@ opts.algorithm = "pcg";
 opts.pcg_iter = 4000;
 opts.cv_iter = 1;
 opts.pcg_tol = 1e-8;
-opts.reg_pars = {0*[1,1,1,1,1], 3*[10,10,1,1,10], 25*[10,10,10,10,10]};
+opts.reg_pars = {0*[1,1,1,1,1], 3*[10,10,1,1,10], 100*[10,10,1,1,10]};
 %% Regularization
 R = Regularization(bathy = bathy, xs = xs, mesh = mesh_mean, model = data_model);
 R.assemble_matrices()
@@ -123,15 +123,9 @@ axs.XLabel.Visible='on';
 xlabel(axs,'y [m]', 'Interpreter','latex');
 %title(m,'yourTitle');
 %% Post Processing
-m = makefigure(20,20);
-MP.plot_solution({data_model.names{1}{1:5}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
-MP.plot_solution({data_model.names{1}{6:10}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
-MP.plot_solution({data_model.names{1}{11:15}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
-MP.plot_solution({data_model.names{1}{16:20}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-%% Sensitivity
+
+MP.plot_solution({data_model.names{1}{1:5}}, 1:3, 'v', 0, 'w', 0, 'ArrowScaling', [10, 10], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
+
 %MP.cross_validation();
 
 CV = MP.cross_validation_analysis();
