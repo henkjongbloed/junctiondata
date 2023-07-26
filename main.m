@@ -101,9 +101,19 @@ R.assemble_matrices()
 data_model.rotation = xs.angle();
 S = LocationBasedVelocitySolver(V, mesh_mean, bathy, xs, ef, data_model, R, opts);
 MP = S.get_parameters();
+% gof = MP.get_residuals();
+% 
+% MP.plot_residuals({0,1,5})
+% 
+% MP.plot_solution({data_model.names{1}{1:5}}, 1:3, 'v', 0, 'w', 0, 'ArrowScaling', [30, 20], 'ArrowTransform','symlog', 'ArrowParam', [.001, .1]);
+% 
+% MP.plot_solution({data_model.names{1}{6},...
+%     data_model.names{2}{11},...
+%     data_model.names{3}{16}}, 1:3, 'v', 0, 'w', 0, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
 
-%% Visualize solution
-m = makefigure(20,10);
+%MP.plot_residuals();
+%% Visualize mesh
+m = makefigure(20,3);
 subplot(1,2,1)
 MP.plot_mesh('LineStyle', '-', 'FixAspectRatio', false, 'vertical', 'z');
 title('$z$ - coordinates', 'Interpreter','latex','FontSize', 12);
@@ -123,14 +133,38 @@ axs.XLabel.Visible='on';
 xlabel(axs,'y [m]', 'Interpreter','latex');
 %title(m,'yourTitle');
 %% Post Processing
-m = makefigure(20,20);
-MP.plot_solution({data_model.names{1}{1:5}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
+% inspect all
+
+
+
 MP.plot_solution({data_model.names{1}{6:10}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
+
 MP.plot_solution({data_model.names{1}{11:15}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
-m = makefigure(20,20);
+
 MP.plot_solution({data_model.names{1}{16:20}}, 1:3, 'v', 1, 'w', 1, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
+
+% Gradient terms
+
+MP.plot_solution({data_model.names{1}{6},...
+    data_model.names{2}{11},...
+    data_model.names{3}{16}, ...
+    data_model.names{1}{7},...
+    data_model.names{2}{12},...
+    data_model.names{3}{17}}, 1:3, 'v', 0, 'w',0, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
+
+
+MP.plot_solution({data_model.names{1}{6},...
+    data_model.names{2}{11},...
+    data_model.names{3}{16}}, 1:3, 'v', 0, 'w', 0, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
+
+
+MP.plot_solution({data_model.names{1}{7},...
+    data_model.names{2}{12},...
+    data_model.names{3}{17}}, 1:3, 'v', 0, 'w', 0, 'ArrowScaling', [30, 2], 'ArrowTransform','symlog', 'ArrowParam', [.001, .001]);
+
+
+
+
 %% Sensitivity
 %MP.cross_validation();
 
