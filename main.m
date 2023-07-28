@@ -24,7 +24,7 @@ BNs = {{'HK2'; 'OMS2'; 'OMN2'},...
 
 V = rdi.VMADCP(adcp{tak}); % create VMADCP object
 % V.horizontal_position_provider(1) = [];
-mtc= MagneticDeviationTwoCycle;
+%mtc= MagneticDeviationTwoCycle;
 %mtc.plot_tracks(V)
 %mtc.estimate_deviation(V)
 %mtc.estimate_deviation(V,true)
