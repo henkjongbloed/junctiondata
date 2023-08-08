@@ -93,8 +93,25 @@ mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
 % 
 
 %% Mesh plot
-% mesh_mean.plot('FixAspectRatio', false)
+%% Visualize mesh
+m = makefigure(20,3);
+subplot(1,2,1)
+MP.plot_mesh('LineStyle', '-', 'FixAspectRatio', false, 'vertical', 'z');
+title('$z$ - coordinates', 'Interpreter','latex','FontSize', 12);
+xlabel([])
 
+subplot(1,2,2)
+MP.plot_mesh('LineStyle', '-', 'FixAspectRatio', false, 'vertical', 'sig');
+xlabel([])
+%gca.TickLabelInterpreter = 'latex';
+
+title('$\sigma$ - coordinates', 'Interpreter','latex', 'FontSize', 12);
+axs=axes(m,'visible','off');
+%m.Title.Visible='on';
+axs.XLabel.Visible='on';
+%m.YLabel.Visible='on';
+%ylabel(m,'yourYLabel');
+xlabel(axs,'y [m]', 'Interpreter','latex');
 %% Empirical model
 %Trying different models
 
