@@ -9,7 +9,7 @@ RF = 'C:\Users\jongb013\Documents\PHD\2-Programming\'; %RootFolder
 cd([RF,'WP2\TwoJunctions\code'])
 
 ds = 1;
-tak = 1:3
+tak = 1;
 
 DS = {'OMHA14','NMOMNW15'}; DS = DS{ds};
 BN = {{' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'},...
@@ -26,26 +26,6 @@ for t = 1:numel(tak)
 end
 
 %% Initial inspection
-% 
-% V.plot_orientations;
-% figure
-% V.plot_track
-% figure
-% V.plot_bed_position
-% figure
-% V.plot_track_velocity
-% figure
-% V.plot_velocity
-% figure
-% V.plot_backscatter
-% create VMADCP object
-% for cc = 1:numel(V)
-%     V(cc).horizontal_position_provider(1) = [];
-%     mtc(cc) = MagneticDeviationTwoCycle;
-%     mtc(cc).plot_tracks(V(cc))
-%     mtc(cc).estimate_deviation(V(cc))
-%     mtc(cc).estimate_deviation(V(cc),true)
-% end
 constituents = {'M2', 'M4'};
 % 
 water_level = VaryingWaterLevel(datetime(datevec(h.t)), h.wl); % set water level to varying
@@ -75,97 +55,144 @@ switch dat_selection
 end
 
 [V.filters] = deal(Filter);
-bathy = BathymetryScatteredPoints(ef, 'NoExpand', V);
+bathy = BathymetryScatteredPoints(ef, V);
 interpolators = [bathy.interpolator];
 [interpolators.span] = deal(0.01);
 
-mesh_maker = SigmaZetaMeshFromVMADCP(ef, xs, bathy,'NoExpand', V);
-[mesh_maker.deltan] = deal(8);
-[mesh_maker.deltaz] = deal(.8);
-mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
+mesh_maker = SigmaZetaMeshFromVMADCP(ef, xs, bathy, 'NoExpand', V);
+
+mesh_mean = mesh_maker.get_mesh(resn = 50, resz = 20); % get mesh at mean water level
+mesh_mean.plot()
 
 
-% Bw = mesh_mean.nw(2) - mesh_mean.nw(1); % Little fishy but it works
-% Hw = abs(min(mesh_mean.zb_all));
-% mesh_maker.deltan = (Bw + 1)/25;%(Bw + 1)/35; -> 35 ill-conditioned -> reg trivially works better.
-% mesh_maker.deltaz = (Hw+1)/13;%(Hw+1)/13; -> 13 ill-conditioned -> reg trivially works better.
-% mesh_mean = mesh_maker.get_mesh(); % get mesh at mean water level
+% %% Mesh plot
+% % mesh_mean.plot('FixAspectRatio', false)
 % 
-
-%% Mesh plot
-%% Visualize mesh
-m = makefigure(20,3);
-subplot(1,2,1)
-MP.plot_mesh('LineStyle', '-', 'FixAspectRatio', false, 'vertical', 'z');
-title('$z$ - coordinates', 'Interpreter','latex','FontSize', 12);
-xlabel([])
-
-subplot(1,2,2)
-MP.plot_mesh('LineStyle', '-', 'FixAspectRatio', false, 'vertical', 'sig');
-xlabel([])
-%gca.TickLabelInterpreter = 'latex';
-
-title('$\sigma$ - coordinates', 'Interpreter','latex', 'FontSize', 12);
-axs=axes(m,'visible','off');
-%m.Title.Visible='on';
-axs.XLabel.Visible='on';
-%m.YLabel.Visible='on';
-%ylabel(m,'yourYLabel');
-xlabel(axs,'y [m]', 'Interpreter','latex');
+% %% Visualize mesh
+% % m = makefigure(10,3);
+% % mesh_mean(1).plot('sigma', false, 'FixAspectRatio', false);
+% % title('$z$ - coordinates', 'Interpreter','latex','FontSize', 12);
+% % axis tight
+% % ax = gca;
+% % set(ax, 'XDir','reverse')
+% % ax.TickLabelInterpreter = 'latex';
+% % axs=axes(m,'visible','off');
+% % %m.Title.Visible='on';
+% % axs.XLabel.Visible='on';
+% % axs.YLabel.Visible='on';
+% % %ylabel(m,'yourYLabel');
+% % xlabel(axs,'y [m]', 'Interpreter','latex');
+% % ylabel(axs, '$z [m]$', 'Interpreter', 'latex')
+% % 
+% % 
+% % m = makefigure(10,3);
+% % mesh_mean(1).plot('sigma', true, 'FixAspectRatio', true);
+% % title('$\sigma$ - coordinates', 'Interpreter','latex', 'FontSize', 12);
+% % axis tight
+% % ax = gca;
+% % set(ax, 'XDir','reverse')
+% % ax.TickLabelInterpreter = 'latex';
+% % axs=axes(m,'visible','off');
+% % %m.Title.Visible='on';
+% % axs.XLabel.Visible='on';
+% % axs.YLabel.Visible='on';
+% % %ylabel(m,'yourYLabel');
+% % xlabel(axs,'y [m]', 'Interpreter','latex');
+% % ylabel(axs,'$\sigma$', 'Interpreter', 'latex')
+% 
 %% Empirical model
-%Trying different models
-
 flow_model = TaylorTidalVelocityModel;
-
-
-flow_model.constituents = deal(constituents);
+flow_model.constituents = constituents;
 flow_model.s_order = deal([1 1 1]);
 flow_model.n_order = deal([1 1 1]);
 flow_model.sigma_order = deal([1 1 1]);
-
-opts = SolverOptions(reg_iter = [3,3,3,3,3], max_reg_pars = [1000, 1000, 400, 400, 1000]);
+% 
+% 
+%% Solver options and regularization
+opts = SolverOptions();
 opts.algorithm = "pcg";
 opts.pcg_iter = 4000;
 opts.cv_iter = 1;
 opts.pcg_tol = 1e-8;
-
-opts = SolverOptions;
+% 
+% 
+% %% Add regularization terms
 flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
-% regs = regularization.Regularization(mesh_mean, bathy, xs, data_model, 'NoExpand', V);
+%[flow_regs.weight] = deal([1 10]);
+
+% Alternatively:
+flow_regs(1).weight = [10 1000];
+flow_regs(2).weight = [10 1000];
+flow_regs(3).weight = [1 100];
+flow_regs(4).weight = [1 100];
+flow_regs(5).weight = [10 1000];
 
 
-for cc = 1:numel(V) % discuss with bart
-    disp([flow_regs{cc}.weight])
-    [flow_regs{cc}.weight] = deal(0);
-    disp([flow_regs{cc}.weight])
-   % disp(flow_regs{cc}(1, 3).weight)
-end
+%% Solve
 
-flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, flow_regs, 'NoExpand', V); 
+flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
 [flow_solv.rotation] = deal(xs.angle);
 flow = flow_solv.get_solution();
+% 
 
-figure
+% tiledlayout;
+reg = 1;
 for cc = 1:numel(V)
-        mesh_mean(cc).plot(flow(cc).pars(:,1),'AspectRatio',5, 'FixAspectRatio', true);
-%     mesh_mean(cc).plot(mp(cc).pars(:,data_model(cc).find_par(1, {'u','v','w'}, {'sig'}, {'M0'})),...
-%         'AspectRatio',5, 'FixAspectRatio', true);
+    figure
+     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0'), reg),...
+          'AspectRatio',5, 'FixAspectRatio', true);
+    title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
+    colorbar;
+%      nexttile;
+     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos"), reg),...
+          'AspectRatio',5, 'FixAspectRatio', true);
+    title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos")))
+
+    colorbar;
+%      nexttile;
+     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin"), reg),...
+          'AspectRatio',5, 'FixAspectRatio', true);
+         title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin")))
+
+    colorbar;
+    mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0'), 2),...
+          'AspectRatio',5, 'FixAspectRatio', true);
+        title(flow_model(cc).all_names(flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0')))
+
     colorbar;
 end
 
+%% Backscatter
+bran = 1; % I have 3 datasets, all contained in one VMADCP object.
+bac_model(bran) = TidalScalarModel; % Type your own model here, Shiyu. In my case I use a tidalmodel, just to test.
+[bac_model(bran).constituents] = deal(constituents);
+
+bac_solv = BackscatterSolver(mesh_mean(bran), bathy(bran), xs(bran), ef(bran), bac_model(bran), opts, 'NoExpand', V);
+bac = bac_solv.get_solution();
+figure;
+mesh_mean.plot(bac.pars(:,1)); colorbar;
+% mesh_mean.plot(bac.pars(:,2)); colorbar;
+% mesh_mean.plot(bac.pars(:,3)); colorbar;
+% mesh_mean.plot(bac.pars(:,4)); colorbar;
+% mesh_mean.plot(bac.pars(:,5)); colorbar;
+
 %% Salinity
-bran = 1;
+
 sal_model(bran) = TidalScalarModel;
 [sal_model(bran).constituents] = deal(constituents);
 
-sal_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, sal_model, 'NoExpand', V);
+% sal_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, sal_model, 'NoExpand', V);
 
-sal_solv = ExternalDataSolver(mesh_mean(bran), bathy(bran), xs(bran), ef(bran), sal_model(bran), opts,...
+sal_solv = ExternalDataSolver(mesh = mesh_mean(bran), bathy = bathy(bran), xs=xs(bran), ef=ef(bran), data_model=sal_model(bran), opts=opts,...
     position = [ctd{bran}.X, ctd{bran}.Y, ctd{bran}.Z],...
-    time = datetime(ctd{bran}.T, 'ConvertFrom','datenum'),...
+    time = datetime(ctd{bran}.T2, 'ConvertFrom','datenum'),...
     data = ctd{bran}.S,...
     xform = 1,...
     water_level_object = water_level);
+
+disp("made solver")
+
+sal = sal_solv.get_solution();
 
 %         position(:,3) double = [] % x,y,z position of the data
 %         time(:,1) datetime = [] % time the data were measured
