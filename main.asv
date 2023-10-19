@@ -100,45 +100,93 @@ mesh_mean.plot()
 % % xlabel(axs,'y [m]', 'Interpreter','latex');
 % % ylabel(axs,'$\sigma$', 'Interpreter', 'latex')
 % 
-%% Empirical model
+%% SolverOptions
+opts = SolverOptions();
+
+
+%% Empirical model: TaylorTidal
 flow_model = TaylorTidalVelocityModel;
 flow_model.constituents = constituents;
 flow_model.s_order = deal([1 1 1]);
 flow_model.n_order = deal([1 1 1]);
 flow_model.sigma_order = deal([1 1 1]);
-% 
-% 
+
 %% Solver options and regularization
-opts = SolverOptions();
-opts.algorithm = "pcg";
-opts.pcg_iter = 4000;
-opts.cv_iter = 1;
-opts.pcg_tol = 1e-8;
-% 
-% 
+
 % %% Add regularization terms
 flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
-%[flow_regs.weight] = deal([1 10]);
 
-% Alternatively:
 flow_regs(1).weight = [10 1000];
 flow_regs(2).weight = [10 1000];
 flow_regs(3).weight = [1 100];
 flow_regs(4).weight = [1 100];
 flow_regs(5).weight = [10 1000];
-
-
 %% Solve
 
 flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
 [flow_solv.rotation] = deal(xs.angle);
 flow = flow_solv.get_solution();
-% 
 
-% tiledlayout;
-reg = 1;
+
+%% Empirical model: Tidal
+flow_model = TidalVelocityModel;
+flow_model.constituents = constituents;
+% flow_model.s_order = deal([1 1 1]);
+% flow_model.n_order = deal([1 1 1]);
+% flow_model.sigma_order = deal([1 1 1]);
+
+%% Solver options and regularization
+
+% %% Add regularization terms
+flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
+
+flow_regs(1).weight = [10 1000];
+flow_regs(2).weight = [10 1000];
+flow_regs(3).weight = [1 100];
+flow_regs(4).weight = [1 100];
+flow_regs(5).weight = [10 1000];
+%% Solve
+
+flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
+[flow_solv.rotation] = deal(xs.angle);
+flow = flow_solv.get_solution();
+
+%% Empirical model: Taylor
+flow_model = TaylorVelocityModel;
+% flow_model.constituents = constituents;
+flow_model.s_order = deal([1 1 1]);
+flow_model.n_order = deal([1 1 1]);
+flow_model.sigma_order = deal([1 1 1]);
+
+%% Solver options and regularization
+
+% %% Add regularization terms
+flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
+
+flow_regs(1).weight = [10 1000];
+flow_regs(2).weight = [10 1000];
+flow_regs(3).weight = [1 100];
+flow_regs(4).weight = [1 100];
+flow_regs(5).weight = [10 1000];
+%% Solve
+
+flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
+[flow_solv.rotation] = deal(xs.angle);
+flow = flow_solv.get_solution();
+%%
 for cc = 1:numel(V)
-    figure
+    for reg = 1:2
+     mesh_mean(cc).plot(flow(cc).pars(:,42, reg),...
+          'AspectRatio',5, 'FixAspectRatio', true);
+%     title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
+    colorbar;
+    end
+end
+%%
+
+for cc = 1:numel(V)
+    for reg = 1:2
+    figure;
      mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0'), reg),...
           'AspectRatio',5, 'FixAspectRatio', true);
     title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
@@ -160,6 +208,7 @@ for cc = 1:numel(V)
         title(flow_model(cc).all_names(flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0')))
 
     colorbar;
+    end
 end
 
 %% Backscatter
