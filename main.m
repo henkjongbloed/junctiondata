@@ -23,6 +23,9 @@ BNs = {{'HK2'; 'OMS2'; 'OMN2'},...
 [adcp, ctd, h] = import_data(RF, DS);
 for t = 1:numel(tak)
      V(t) = rdi.VMADCP(adcp{tak(t)}); 
+     if strcmp(DS, 'NMOMNW15')
+         V(t).horizontal_position_provider(1) = [];
+     end
 end
 
 %% Initial inspection
@@ -121,127 +124,112 @@ flow_regs(2).weight = [10 1000];
 flow_regs(3).weight = [1 100];
 flow_regs(4).weight = [1 100];
 flow_regs(5).weight = [10 1000];
-%% Solve
+%% Solve and plot
 
 flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
 [flow_solv.rotation] = deal(xs.angle);
 flow = flow_solv.get_solution();
 
 
-%% Empirical model: Tidal
-flow_model = TidalVelocityModel;
-flow_model.constituents = constituents;
-% flow_model.s_order = deal([1 1 1]);
-% flow_model.n_order = deal([1 1 1]);
-% flow_model.sigma_order = deal([1 1 1]);
+%% Plot
 
-%% Solver options and regularization
-
-% %% Add regularization terms
-flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
-
-flow_regs(1).weight = [10 1000];
-flow_regs(2).weight = [10 1000];
-flow_regs(3).weight = [1 100];
-flow_regs(4).weight = [1 100];
-flow_regs(5).weight = [10 1000];
-%% Solve
-
-flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
-[flow_solv.rotation] = deal(xs.angle);
-flow = flow_solv.get_solution();
-
-%% Empirical model: Taylor
-flow_model = TaylorVelocityModel;
-% flow_model.constituents = constituents;
-flow_model.s_order = deal([1 1 1]);
-flow_model.n_order = deal([1 1 1]);
-flow_model.sigma_order = deal([1 1 1]);
-
-%% Solver options and regularization
-
-% %% Add regularization terms
-flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, 'NoExpand', V);
-
-flow_regs(1).weight = [10 1000];
-flow_regs(2).weight = [10 1000];
-flow_regs(3).weight = [1 100];
-flow_regs(4).weight = [1 100];
-flow_regs(5).weight = [10 1000];
-%% Solve
-
-flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, opts, 'NoExpand', V, flow_regs); 
-[flow_solv.rotation] = deal(xs.angle);
-flow = flow_solv.get_solution();
-%%
 for cc = 1:numel(V)
     for reg = 1:2
-     mesh_mean(cc).plot(flow(cc).pars(:,42, reg),...
+     mesh_mean(cc).plot(flow(cc).pars(:,1, reg),...
           'AspectRatio',5, 'FixAspectRatio', true);
 %     title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
     colorbar;
     end
 end
-%%
-
-for cc = 1:numel(V)
-    for reg = 1:2
-    figure;
-     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0'), reg),...
-          'AspectRatio',5, 'FixAspectRatio', true);
-    title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
-    colorbar;
-%      nexttile;
-     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos"), reg),...
-          'AspectRatio',5, 'FixAspectRatio', true);
-    title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos")))
-
-    colorbar;
-%      nexttile;
-     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin"), reg),...
-          'AspectRatio',5, 'FixAspectRatio', true);
-         title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin")))
-
-    colorbar;
-    mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0'), 2),...
-          'AspectRatio',5, 'FixAspectRatio', true);
-        title(flow_model(cc).all_names(flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0')))
-
-    colorbar;
-    end
-end
-
 %% Backscatter
-bran = 1; % I have 3 datasets, all contained in one VMADCP object.
-bac_model(bran) = TidalScalarModel; % Type your own model here, Shiyu. In my case I use a tidalmodel, just to test.
-[bac_model(bran).constituents] = deal(constituents);
+tak(t) = 1; % I have 3 datasets, all contained in one VMADCP object.
+bac_model(tak(t)) = TidalScalarModel;
+[bac_model(tak(t)).constituents] = deal(constituents);
+bac_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, bac_model, 'NoExpand', V);
 
-bac_solv = BackscatterSolver(mesh_mean(bran), bathy(bran), xs(bran), ef(bran), bac_model(bran), opts, 'NoExpand', V);
+bac_regs(1).weight = 1;
+bac_regs(2).weight = 1;
+
+bac_solv = BackscatterSolver(mesh_mean(tak(t)), bathy(tak(t)), xs(tak(t)), ef(tak(t)), bac_model(tak(t)), opts, 'NoExpand', V, bac_regs);
 bac = bac_solv.get_solution();
+
 figure;
 mesh_mean.plot(bac.pars(:,1)); colorbar;
-% mesh_mean.plot(bac.pars(:,2)); colorbar;
-% mesh_mean.plot(bac.pars(:,3)); colorbar;
-% mesh_mean.plot(bac.pars(:,4)); colorbar;
-% mesh_mean.plot(bac.pars(:,5)); colorbar;
+mesh_mean.plot(bac.pars(:,2)); colorbar;
+mesh_mean.plot(bac.pars(:,3)); colorbar;
+mesh_mean.plot(bac.pars(:,4)); colorbar;
+mesh_mean.plot(bac.pars(:,5)); colorbar;
 
 %% Salinity
 
-sal_model(bran) = TidalScalarModel;
-[sal_model(bran).constituents] = deal(constituents);
+if strcmp(DS,'NMOMNW15')    % Change ADCP coordinates rather than CTD coordinates!!
+      [ctd{tak(t)}.pos(:,1), ctd{tak(t)}.pos(:,2)]      = wgs2utm(ctd{tak(t)}.Y,ctd{tak(t)}.X, 31, 'N'); %Convert LatLon to UTM %Correct
+      time = rescale(ctd{tak(t)}.T, datenum(V.time(1)), datenum(V.time(end)));
+      ctd{tak(t)}.t = datetime(time, 'ConvertFrom', 'datenum'); % Rescale time such that measurements fall within experiment time
+      ctd{tak(t)}.pos(:,3) = water_level.get_water_level(ctd{tak(t)}.t) - ctd{tak(t)}.Z;
+%     [ctdH, S.i] = getHour(ctd.T2, hour/2);% + datenum('9-Aug-2014 00:00:00'); % Correct
+%     S.t = rescale(ctdH, min(U.adcpH), max(U.adcpH)); % Everything works perfectly
+%     % Space
+%     xnew = center_cloud([S.Xold, S.Yold], U.xs.origin'); % Because of offset in CTD coordinates relative to ADCP - quick fix
+%     S.X = xnew(:,1); S.Y = xnew(:,2); % Only needed for 2015 data
+      
+elseif strcmp(DS,'OMHA14')
+    [ctd{tak(t)}.lon, ctd{tak(t)}.lat, ~]      = rd2wgs(ctd{tak(t)}.X, ctd{tak(t)}.Y); %Convert RD to LatLon %Correct
+    [ctd{tak(t)}.pos(:,1), ctd{tak(t)}.pos(:,2)]      = wgs2utm(ctd{tak(t)}.lat, ctd{tak(t)}.lon, 31, 'N'); %Convert LatLon to UTM %Correct
+    time = rescale(ctd{tak(t)}.T, datenum(V.time(1)), datenum(V.time(end)));
+    ctd{tak(t)}.t = datetime(time, 'ConvertFrom', 'datenum'); % Rescale time such that measurements fall within experiment time
+    ctd{tak(t)}.pos(:,3) = water_level.get_water_level(ctd{tak(t)}.t) - ctd{tak(t)}.Z;
+%     ctddt = 6000;
+%     [ctdH, S.i] = getHour(ctd.T, ctddt); % dt = 6000 -> 1 sample per 6s?
+     %if strcmp(U.BN, ' Old Meuse North')
+%         [S.t, S.i] = manualOMN(ctd.T, U.adcpH);
+%     end
+end
+figure;
+mesh_mean.plot3()
+hold on
+scatter3(ctd{tak(t)}.pos(:,1), ctd{tak(t)}.pos(:,2), ctd{tak(t)}.pos(:,3))
+% S.eta = U.eta(S.t); % Waterlevel per CTD sample
 
-% sal_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, sal_model, 'NoExpand', V);
+% S.Z          =  - ctd.Z + S.eta;
 
-sal_solv = ExternalDataSolver(mesh = mesh_mean(bran), bathy = bathy(bran), xs=xs(bran), ef=ef(bran), data_model=sal_model(bran), opts=opts,...
-    position = [ctd{bran}.X, ctd{bran}.Y, ctd{bran}.Z],...
-    time = datetime(ctd{bran}.T2, 'ConvertFrom','datenum'),...
-    data = ctd{bran}.S,...
-    xform = 1,...
+% [S.s, S.n] = U.xs.xy2sn(S.X, S.Y);
+
+% S.zb = n2zb(S.n, U.mesh_mean);
+% S.sig = z2sig(S.Z, S.zb, S.eta); % IS THIS ALLOWED IN SIGMA COORDINATES?? - TAKE CARE
+% S.Z = sig2z(S.sig, S.zb, S.eta);
+
+% [S.Xp, S.Yp] = U.xs.sn2xy(0*S.s, S.n); % Project on cross section by setting s = 0. [Xp, Yp] = projected X,Y
+
+%      max(adcpT) - min(adcpT)
+%      max(ctd.T) - min(ctd.T)
+%     % Continue here: Make S.t corresponding to 
+%     S.t = ctd.T;% + datenum('12-Aug-2014 00:00:00');
+    %U.mesh_mean.plot()
+
+
+
+sal_model(tak(t)) = TidalScalarModel;
+[sal_model(tak(t)).constituents] = deal(constituents);
+
+sal_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, sal_model, 'NoExpand', V);
+
+sal_solv = ExternalDataSolver('NoExpand', regularization=sal_regs, mesh=mesh_mean(tak(t)), bathy=bathy(tak(t)), xs=xs(tak(t)), ef=ef(tak(t)), data_model=sal_model(tak(t)), opts=opts,...
+    position = ctd{tak(t)}.pos,...
+    time = ctd{tak(t)}.t,...
+    data = ctd{tak(t)}.S,...
+    xform = ones(size(ctd{tak(t)}.S)),...
     water_level_object = water_level);
 
 disp("made solver")
 
 sal = sal_solv.get_solution();
+figure;
+mesh_mean.plot(sal.pars(:,1)); colorbar;
+mesh_mean.plot(sal.pars(:,2)); colorbar;
+mesh_mean.plot(sal.pars(:,3)); colorbar;
+mesh_mean.plot(sal.pars(:,4)); colorbar;
+mesh_mean.plot(sal.pars(:,5)); colorbar;
 
 %         position(:,3) double = [] % x,y,z position of the data
 %         time(:,1) datetime = [] % time the data were measured
@@ -322,3 +310,31 @@ sal = sal_solv.get_solution();
 % MP.plot_cross_validation_analysis(CV, 1);
 % 
 % SA = MP.local_sensitivity_analysis();
+
+
+% for cc = 1:numel(V)
+%     for reg = 1:2
+%     figure;
+%      mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0'), reg),...
+%           'AspectRatio',5, 'FixAspectRatio', true);
+%     title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M0')))
+%     colorbar;
+% %      nexttile;
+%      mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos"), reg),...
+%           'AspectRatio',5, 'FixAspectRatio', true);
+%     title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "cos")))
+% 
+%     colorbar;
+% %      nexttile;
+%      mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin"), reg),...
+%           'AspectRatio',5, 'FixAspectRatio', true);
+%          title(flow_model(cc).all_names(flow_model(cc).find_par(order = 0, component = 'u', variable = 'sig', constituent = 'M2', sincos = "sin")))
+% 
+%     colorbar;
+%     mesh_mean(cc).plot(flow(cc).pars(:,flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0'), 2),...
+%           'AspectRatio',5, 'FixAspectRatio', true);
+%         title(flow_model(cc).all_names(flow_model(cc).find_par(order = 1, component = 'u', variable = 'sig', constituent = 'M0')))
+% 
+%     colorbar;
+%     end
+% end

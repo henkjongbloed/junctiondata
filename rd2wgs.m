@@ -1,5 +1,11 @@
 function [lamwgs,phiwgs,LL]=rd2wgs(x,y)
-% RD2WGS: Converts Dutch rd-coordinates to GE wgs lat(Easting) long(Northing) coordinates % % USAGE: % [long,lat,LL]=rd2wgs(x,y) % % fortran 90 routine received from Peter Vermeulen % converted to Matlab by TO 090916 % % SEE ALSO: wgs2rd, kmlpath kmlpath2rd getDinoXSec % % TO 090916
+% RD2WGS: Converts Dutch rd-coordinates to GE wgs lat(Easting) long(Northing) coordinates % 
+% USAGE: 
+% [long,lat,LL]=rd2wgs(x,y) 
+
+% % fortran 90 routine received from Peter Vermeulen 
+% converted to Matlab by TO 090916 % 
+% SEE ALSO: wgs2rd, kmlpath kmlpath2rd getDinoXSec % % TO 090916
 if nargin<2, [lamwgs,phiwgs,LL]=selftest; return 
 end
 [phibes, lambes]=rd2bessel(x, y); 

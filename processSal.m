@@ -31,66 +31,15 @@ elseif strcmp(DS,'OMHA14')
     %U.mesh_mean.plot()
 end
 
-% plot(U.adcpI)
-% hold on
-% plot(S.i)
-% disp(numel(unique(adcpH)))
-% disp(numel(unique(S.t)))
-% disp(max(adcpH) - max(S.t))
-% disp(min(adcpH) - min(S.t))
-% datestr(max(adcpH)- min(adcpH))
-
-% t2 = datenum(adcpT);
-% 
-% figure;
-% plot(adcpH)
-% hold on
-% plot(S.t)
 S.eta = U.eta(S.t); % Waterlevel per CTD sample
-% plot(S.eta)
-% 
-% figure;
-% subplot(211)
-% plot(ctd.X, ctd.Y)
-% 
-% subplot(212)
-% try
-%     plot(templon, templat)
-% 
-% figure
-% plot(S.X, S.Y, '*')
-% hold on
-% plot(xnew(:,1), xnew(:,2), '*')
-% U.B.plot()
-% U.xs.plot()
-% catch
-%     
-% end
 
 S.Z          =  - ctd.Z + S.eta;
-
-
-
-% 
-% temp = datetime(S.t, 'ConvertFrom','datenum','Format','HH:mm:ss');
-% 
-% [S.hr, ind] = getHour(S.t, hour/2);
 
 [S.s, S.n] = U.xs.xy2sn(S.X, S.Y);
 
 S.zb = n2zb(S.n, U.mesh_mean);
 S.sig = z2sig(S.Z, S.zb, S.eta); % IS THIS ALLOWED IN SIGMA COORDINATES?? - TAKE CARE
 S.Z = sig2z(S.sig, S.zb, S.eta);
-
-% figure
-% plot(S.sig)
-% figure;
-% % Inspect CTD data on mesh
-% plot(S.n, S.Z,'*')
-% hold on
-% U.mesh_mean.plot()
-
-
 
 [S.Xp, S.Yp] = U.xs.sn2xy(0*S.s, S.n); % Project on cross section by setting s = 0. [Xp, Yp] = projected X,Y
 
