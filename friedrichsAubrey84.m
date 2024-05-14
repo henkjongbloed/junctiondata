@@ -1,31 +1,72 @@
 %FriedrichsAubrey1984
+close all
+clearvars
+
+A2 = 1; P2 = 0;
+
+A4 = 0; P4 = 0;
+
+t = 0:(2/60):(2*24);
+
+T = 12.42;
+om = 2*pi/T;
+
+y2 = simpleCurve(t, A2, om, P2);
+y4 = simpleCurve(t, A4, 2*om, P4);
+
+fig = figure('Name', 'Friedrichs and Aubrey 1988', 'NumberTitle', 'off', 'Position', [100, 100, 800, 600]);
+% Create sliders for amplitude and phase
+combinedPlot(t, A2, A4, om, P2, P4)
+PSlider = uicontrol('Style', 'slider', 'Min', -pi, 'Max', pi, 'Value', P4, 'Position', [240, 20, 200, 20], 'Callback', @(src, event) updateP(src, event, ASlider,  t, A2, om, P2));
+ASlider = uicontrol('Style', 'slider', 'Min', 0, 'Max', 2, 'Value', A4, 'Position', [20, 20, 200, 20], 'Callback', @(src, event) updateA(src, event, PSlider, t, A2, om, P2));
+PSlider = uicontrol('Style', 'slider', 'Min', -pi, 'Max', pi, 'Value', P4, 'Position', [240, 20, 200, 20], 'Callback', @(src, event) updateP(src, event, ASlider,  t, A2, om, P2));
+
+function updateP(src, event, ASlider, t, A2, om, P2)
+    % Get current slider values
+    A4 = get(ASlider, 'Value');
+    P4 = get(src, 'Value');
+
+        % Update the plot
+    combinedPlot(t, A2, A4, om, P2, P4)
 
 
-a = [1 0]; th = [pi pi];
-v = [1 0]; ph = [0 0];
+    % Update title
+%     title(ax, sprintf('Cosine Function with Sliders\nAmplitude: %.2f, Phase: %.2f', amplitude, phase));
+end
 
-t = 1:1/60:24;
+function updateA(src, event, PSlider, t, A2, om, P2)
+    % Get current slider values
+    A4 = get(src, 'Value');
+    P4 = get(PSlider, 'Value');
 
-T2 = 12.42; O2 = 2*pi/T2;
+        % Update the plot
+    combinedPlot(t, A2, A4, om, P2, P4)
 
-A1 = a(1).*cos(O2.*t - th(1)) ;
-A2 = a(2).*cos(2*O2.*t - th(2));
-V1 = v(1).*cos(O2.*t - ph(1)) ;
-V2 = v(2).*cos(2*O2.*t - ph(2));
 
-figure;
-subplot(2,1,1)
-hold on
-plot(t, A1, 'k:')
-plot(t, A2, 'k--')
-plot(t, A1+A2,'b-', 'LineWidth', 2)
+    % Update title
+%     title(ax, sprintf('Cosine Function with Sliders\nAmplitude: %.2f, Phase: %.2f', amplitude, phase));
+end
 
-title(['Surface: ', 'Ratios ', num2str(2*th(1) - th(2)), ' and ', num2str(a(2)/a(1))])
 
-subplot(2,1,2)
-hold on
-plot(t, V1,'k:')
-plot(t, V2,'k--')
-plot(t, V1+V2,'b-', 'LineWidth', 2)
-title(['Velocity: ', 'Ratios ', num2str(2*ph(1) - ph(2)), ' and ', num2str(v(2)/v(1))])
 
+function dat = simpleCurve(t, A, om, P)
+    dat = A.*cos(om.*t - P);
+    %plot(ax, t, dat, 'LineWidth', 2);
+end
+
+function combinedPlot(t, A2, A4, om, P2, P4)
+    ax = gca;
+    for i = 1:numel(ax.Children)
+        ax.Children(i).XData = [];
+        ax.Children(i).YData = [];
+    end
+    hold on
+    y2 = simpleCurve(t, A2, om, P2);
+    y4 = simpleCurve(t, A4, 2*om, P4);
+    plot(t, y2, 'k:')
+    plot(t, y4, 'k--')
+    plot(t, y2 + y4,'b-', 'LineWidth', 2)
+    hold off
+    ax.YLim = [-2,2];
+    title(['FA88: ', '2\phi_{M2} - \phi_{M4} = ', num2str(2*P2 - P4), ' and A_{M4}/A_{M2} = ', num2str(A4/A2)])
+end
