@@ -102,13 +102,13 @@ classdef Decomposition < handle & helpers.ArraySupport
             f = obj.repmat3(f);
         end
 
-        function plot_components(obj, AF)
+        function plot_components(obj, AF, q)
             figure('units','normalized','outerposition',[0 0 1 1])
             for i=1:numel(AF)
                 subplot(2,4,i)
                 obj.plot_component(AF{i})
-                ncolor=100;
-                colormap(gca, flipud(brewermap(ncolor, 'RdBu')));
+%                 ncolor=100;
+                colormap(gca, helpers.cmaps(q));
             end
         end
 
@@ -122,47 +122,56 @@ classdef Decomposition < handle & helpers.ArraySupport
                     if sf(3) == 1 % f0
                         bar(af)                                      %1
                         xticklabels("f0")
+                        title("F0")
                     else % only sig-dependent
                         plot(squeeze(af), obj.X.sig)    %2
                         xlabel("f(sig)")
                         ylabel("sig")
+                        title("F(sig)")
                     end
                 else % y-dependent
                     if sf(3) == 1 % only y-dependent
                         plot(obj.X.y, squeeze(af))     %3
                         xlabel("y")
                         ylabel("f(y)")
+                        title("F(y)")
                     else % y and sig dependent
                         contourf(obj.X.y, obj.X.sig, squeeze(af)')                        %4
                         xlabel("y")
                         ylabel("sig")
+                        title("F(y,sig)")
                         colorbar
                     end
                 end
             else % t-dependent
                 if sf(2) == 1 % y-independent
                     if sf(3) == 1 % only t-dependent
-                        plot(obj.X.t, squeeze(af))
+                        plot(obj.X.t, squeeze(af)')
                         xlabel("t")
                         ylabel("f(t)")%5
+                        title("F(t)")
                     else % only (t,sig)-dependent
                         contourf(obj.X.t, obj.X.sig, squeeze(af)')  
                         xlabel("t")
                         ylabel("sig")                        %6
                         colorbar
+                        title("F(t,sig)")
                     end
                 else % y-dependent
                     if sf(3) == 1 % only (t,y)-dependent
                         contourf(obj.X.t, obj.X.y, squeeze(af)')
                         xlabel("t")
                         ylabel("y")%7
+                        title("F(t,y)")
                         colorbar
                     else % t and y and sig dependent
-                        bar(0)
-                        disp('Can only display at most 2D variables')
+                        histogram(af(:))
+                        title("F(t,y,sig)")
+                       % disp('Can only display at most 2D variables')
                     end
                 end
             end
+%             colormap(helpers.cmaps(q))
         end
 
         function [f,ff] = avg_comp(obj, f, avg_op)
@@ -202,13 +211,13 @@ classdef Decomposition < handle & helpers.ArraySupport
 
             DFf{1} = AFf{8};                                DF{1} = AF{8};
 
-            DFf{2} = AFf{7} - DFf{1};   	                DF{2} = squeeze(DFf{2}(:,1,1));
-            DFf{3} = AFf{6} - DFf{1};                       DF{3} = squeeze(DFf{3}(1,:,1));
-            DFf{4} = AFf{5} - DFf{1};                       DF{4} = squeeze(DFf{4}(1,1,:));
+            DFf{2} = AFf{7} - DFf{1};   	                DF{2} = DFf{2}(:,1,1);
+            DFf{3} = AFf{6} - DFf{1};                       DF{3} = DFf{3}(1,:,1);
+            DFf{4} = AFf{5} - DFf{1};                       DF{4} = DFf{4}(1,1,:);
 
-            DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = squeeze(DFf{5}(1,:,:));
-            DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = squeeze(DFf{6}(:,1,:));
-            DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = squeeze(DFf{7}(:,:,1));
+            DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = DFf{5}(1,:,:);
+            DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = DFf{6}(:,1,:);
+            DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = DFf{7}(:,:,1);
 
             DFf{8} = AFf{1} - DFf{1} - DFf{2} - DFf{3} - DFf{4} - DFf{5} - DFf{6} - DFf{7};
             DF{8} = DFf{8};

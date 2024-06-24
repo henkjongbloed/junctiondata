@@ -56,7 +56,7 @@ mesh_mean = mesh_maker.get_mesh(resn = 50, resz = 20); % get mesh at mean water 
 % mesh_mean.plot()
 
 %% SolverOptions
-opts = SolverOptions(extrapolate_vert = 0);
+opts = SolverOptions(extrapolate_vert = 0, lat_weight_factor = 10);
 opts.force_zero = [1 1 1 1 1];
 
 
@@ -72,11 +72,11 @@ flow_model.sigma_order = [1 1 1];
 % %% Add regularization terms
 flow_regs = regularization.Velocity.get_all_regs(mesh_mean, bathy, xs, flow_model, opts, 'NoExpand', V);
 
-flow_regs(1).weight = [1000];
-flow_regs(2).weight = [1000];
-flow_regs(3).weight = [100];
-flow_regs(4).weight = [100];
-flow_regs(5).weight = [1000];
+flow_regs(1).weight = [500];
+flow_regs(2).weight = [500];
+flow_regs(3).weight = [50];
+flow_regs(4).weight = [50];
+flow_regs(5).weight = [500];
 
 %% Solve and plot
 
@@ -84,7 +84,6 @@ flow_solv = LocationBasedVelocitySolver(mesh_mean, bathy, xs, ef, flow_model, op
 flow_solv.rotation = xs.angle;
 flow = flow_solv.get_solution();
 
-flow.plot_solution({flow_model.all_names{[1]}}, representation = "Aphi", sol_idx = 1) % u,v,w
 %%
 nqt = 100; nqn = 50; nqs = 20;
 t = linspace(0, 1, nqt); % in days
@@ -115,46 +114,19 @@ flow.decomp = Decomposition(X=X, H=H);
 
 [DF, AF, DFf, AFf] = flow.decomp.decompose_function(u);
 
-flow.decomp.plot_components(AF)
-
 Dsum = sum(cat(4, DFf{:}), 4); %time x lateral x vertical
-%% plot
-%Dsum = H;
-% fi = figure;
-% filename = 'testAnimated.gif';
-% ncolor = 100;
-% amax = max(abs([min(Dsum, [], "all"), max(Dsum, [], "all")]));
-% levels = linspace(-amax, amax, ncolor);
-% [~,ha]=contourf(squeeze(X.Y(1,:,:))', squeeze(X.Z(1,:,:))', squeeze(Dsum(1,:,:))' , levels, "LineColor",'none');
-% colorbar;
-% title("Hartelkanaal: Flow")
-% colormap(gca, flipud(brewermap(ncolor, 'RdBu')));
-% clim([-amax, amax])
-% ylim([min(X.Z, [], 'all'), max(X.Z, [], 'all')])
-% set(gca, 'XDir','reverse') % Very important
-% for tim = 1:1:nqt
-%     frame = getframe(fi);
-%     im = frame2im(frame);
-%     ha.YData = squeeze(X.Z(tim,:,:))';
-%     ha.ZData = squeeze(Dsum(tim,:,:))';
-%     if tim == 1
-%         [imind,cm] = rgb2ind(im,256);
-%         imwrite(imind, cm, filename, 'gif', 'Loopcount', inf);
-%     else
-%         imind = rgb2ind(im, cm);
-%         imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append');
-%     end
-%     pause(.2)
-% end
+% %% plot
+% %Dsum = H;
 % 
-
-[SF,C] = flow.decomp.decompose_product(u,v);
-figure
-bar(SF)
+% 
+% 
+% [SF,C] = flow.decomp.decompose_product(u,v);
 % figure
-flow.decomp.plotC(C)
-%bar(SF)
-
+% bar(SF)
+% % figure
+% flow.decomp.plotC(C)
+% %bar(SF)
+% 
 
 
 %% Salinity
@@ -202,15 +174,15 @@ mesh_mean.plot3()
 hold on
 scatter3(ctd{tak}.pos(:,1), ctd{tak}.pos(:,2), ctd{tak}.pos(:,3))
 
-
-opts = SolverOptions(extrapolate_vert = 1);
+%% Solve
+sopts = SolverOptions(extrapolate_vert = 1, lat_weight_factor = 10);
 sal_model = TidalScalarModel;
 sal_model.constituents = constituents;
-
+sal_model.scalar_name = "salt";
 sal_regs = regularization.Scalar.get_all_regs(mesh_mean, bathy, xs, sal_model, 'NoExpand', V);
-sal_regs(1).weight = 1;
-sal_regs(2).weight = 1;
-sal_solv = ExternalDataSolver(mesh=mesh_mean, bathy=bathy, xs=xs, model=sal_model, opts=opts, regularization=sal_regs, ...
+sal_regs(1).weight = 100;
+sal_regs(2).weight = 100;
+sal_solv = ExternalDataSolver(mesh=mesh_mean, bathy=bathy, xs=xs, model=sal_model, opts=sopts, regularization=sal_regs, ...
     position = ctd{tak}.pos,...
     time = ctd{tak}.t,...
     data = ctd{tak}.S,...
@@ -220,44 +192,78 @@ sal_solv = ExternalDataSolver(mesh=mesh_mean, bathy=bathy, xs=xs, model=sal_mode
 % disp("made solver")
 
 sal = sal_solv.get_solution();
-figure;
-mesh_mean.plot(sal.pars(:,1)); colorbar;
-mesh_mean.plot(sal.pars(:,2)); colorbar;
-mesh_mean.plot(sal.pars(:,3)); colorbar;
-mesh_mean.plot(sal.pars(:,4)); colorbar;
-mesh_mean.plot(sal.pars(:,5)); colorbar;
 
+
+%% Evaluate
 S = sal.evaluate(1, T = Tq, N = Nq, Sig = Sigq, extrapolate=true);
 S(S<0)=0;
 s = reshape(S(:,1), [nqt, nqn, nqs]);
 sal.decomp = flow.decomp;
 [DFs, AFs, DFfs, AFfs] = sal.decomp.decompose_function(s);
-sal.decomp.plot_components(AFs)
-[SF,C] = sal.decomp.decompose_product(u,s);
 
+
+
+flow.decomp.plot_components(DF, "velmap")
+sal.decomp.plot_components(DFs, "salmap")
+
+
+flow.plot_solution({flow_model.all_names{[1]}}, representation = "Aphi", sol_idx = 1) % u,v,w
+sal.plot_solution({sal_model.all_names{[1]}}, representation = "Aphi", sol_idx = 1) % u,v,w
+clim([0,15])
+colormap(helpers.cmaps("salmap"))
+
+[SF,C] = sal.decomp.decompose_product(u,s);
+% 
 figure
 bar(SF)
-% figure
-sal.decomp.plotC(C)
-bar(SF)
+% % figure
+% sal.decomp.plotC(C)
+% bar(SF)
 
 
 Dsums = sum(cat(4, DFfs{:}), 4); %time x lateral x vertical
+
+fi = figure;
+filename = 'FLOWRWW.gif';
+ncolor = 100;
+amax = max(abs([min(Dsum, [], "all"), max(Dsum, [], "all")]));
+levels = linspace(-amax, amax, ncolor);
+[~,ha]=contourf(squeeze(X.Y(1,:,:))', squeeze(X.Z(1,:,:))', squeeze(Dsum(1,:,:))' , levels, "LineColor",'none');
+colorbar;
+title("Nieuwe Waterweg: Flow")
+cm=colormap(gca, helpers.cmaps("velmap"));
+clim([-amax, amax])
+ylim([min(X.Z, [], 'all'), max(X.Z, [], 'all')])
+set(gca, 'XDir','reverse') % Very important
+for tim = 1:1:nqt
+    frame = getframe(fi);
+    im = frame2im(frame);
+    ha.YData = squeeze(X.Z(tim,:,:))';
+    ha.ZData = squeeze(Dsum(tim,:,:))';
+    if tim == 1
+        [imind,cm] = rgb2ind(im,256);
+        imwrite(imind, cm, filename, 'gif', 'Loopcount', inf);
+    else
+        imind = rgb2ind(im, cm);
+        imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append');
+    end
+    pause(.2)
+end
 %% plot
 % Salinity: positive
 
 %figure;
 fi = figure;
-filename = 'testAnimatedSal.gif';
+filename = 'SALRWW.gif';
 ncolor = 100;
 %Dsums = H;
 amax = max(abs([min(Dsums, [], "all"), max(Dsums, [], "all")]));
 levels = linspace(0, amax, ncolor);
 [~,ha]=contourf(squeeze(X.Y(1,:,:))', squeeze(X.Z(1,:,:))', squeeze(Dsums(1,:,:))' , levels, "LineColor",'none');
 colorbar;
-title("Hartelkanaal: Salinity")
+title("Nieuwe Waterweg: Salinity")
 cm = flipud(brewermap(ncolor, 'RdBu'));
-colormap(gca, cm(size(cm,1)/2:end,:));
+cm=colormap(gca, helpers.cmaps("salmap"));
 clim([0, amax])
 ylim([min(X.Z, [], 'all'), max(X.Z, [], 'all')])
 set(gca, 'XDir','reverse') % Very important
@@ -273,7 +279,7 @@ for tim = 1:1:nqt
         imind = rgb2ind(im, cm);
         imwrite(imind, cm, filename, 'gif', 'WriteMode', 'append');
     end
-    pause(.1)
+    pause(.2)
 end
 
 %% Plot

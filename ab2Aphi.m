@@ -16,7 +16,9 @@ for nr = 1:size(pars,3)
             tid_names{1, ind} = strrep(names{1,ind}, 'a', 'A');
             tid_names{1, ind+1} = strrep(names{1,ind+1}, 'b', '\phi');
             ind = ind + 2;
-            tempa = pars(:,ind,nr); tempb = pars(:,ind+1,nr);
+            if ind <= length(names)
+                 tempa = pars(:,ind,nr); tempb = pars(:,ind+1,nr);
+            end
         else % Tidal, spatially varying -> Chain rule
             tid_pars(:,ind,nr) = (tempa.*pars(:,ind,nr) + tempb.*pars(:,ind+1,nr))./(sqrt(tempa.^2 + tempb.^2));
             tid_pars(:,ind + 1,nr) = (tempa.*pars(:,ind+1,nr) - tempb.*pars(:,ind,nr))./(tempa.^2 + tempb.^2);

@@ -253,13 +253,13 @@ AFf{1}  = f;
 
 DFf{1} = AFf{8};                                DF{1} = AF{8};
 
-DFf{2} = AFf{7} - DFf{1};   	                DF{2} = squeeze(DFf{2}(:,1,1));
-DFf{3} = AFf{6} - DFf{1};                       DF{3} = squeeze(DFf{3}(1,:,1));
-DFf{4} = AFf{5} - DFf{1};                       DF{4} = squeeze(DFf{4}(1,1,:));
+DFf{2} = AFf{7} - DFf{1};   	                DF{2} = DFf{2}(:,1,1);
+DFf{3} = AFf{6} - DFf{1};                       DF{3} = DFf{3}(1,:,1);
+DFf{4} = AFf{5} - DFf{1};                       DF{4} = DFf{4}(1,1,:);
 
-DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = squeeze(DFf{5}(1,:,:));
-DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = squeeze(DFf{6}(:,1,:));
-DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = squeeze(DFf{7}(:,:,1));
+DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = DFf{5}(1,:,:);
+DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = DFf{6}(:,1,:);
+DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = DFf{7}(:,:,1);
 
 DFf{8} = AFf{1} - DFf{1} - DFf{2} - DFf{3} - DFf{4} - DFf{5} - DFf{6} - DFf{7};              
 DF{8} = DFf{8};
