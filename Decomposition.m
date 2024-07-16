@@ -3,10 +3,11 @@ classdef Decomposition < handle & helpers.ArraySupport
     % Low-level class that decomposes function F: Omega \subset R^3 -> R
     % where Omega is a time-varying domain
     properties      
-        X struct % Coordinates (t, y, sig, ...
-        % T, Y, Sig)
+        X struct % Coordinates (t, y, sig, T, Y, Sig)
 
         H double % Local water depth, depending on (t,y)
+
+        DFf struct % Orthogonal components of the function to be decomposed
     end
     properties(Dependent)
         A
@@ -44,7 +45,7 @@ classdef Decomposition < handle & helpers.ArraySupport
             dif = trapz(obj.X.sig, f, 3);
         end
 
-        % Thickness-weighed functions
+        % Thickness-weighed functions %TODO look in detail.
         function f = repmat3(obj, f)
             % Reshape matrix to size sz , repeating mean values if needed
             rep = [1 1 1];
@@ -112,7 +113,7 @@ classdef Decomposition < handle & helpers.ArraySupport
             end
         end
 
-        function plot_component(obj, af)
+        function plot_component(obj, af) %TODO change
             sf = size(af);
             if size(af,3)==1
                 sf = [sf 1];
@@ -193,6 +194,11 @@ classdef Decomposition < handle & helpers.ArraySupport
             [f,ff] = obj.avg_comp(f, avg_op);
         end
 
+       % function [DF, AF] = get_decomposition(obj, f)
+
+
+
+
         function [DF, AF, DFf, AFf] = decompose_function(obj, f)
 
             AF{1} = f;
@@ -230,10 +236,7 @@ classdef Decomposition < handle & helpers.ArraySupport
             C = zeros(numel(DFf), numel(DFf));
             SF = zeros([numel(DFf),1]);
             for i = 1:numel(DFf)
-                for j = 1:numel(DFf)
-                    C(i,j) = obj.avg_0(DFf{i}.*DGf{j});
-                end
-                %SF(i) = C(i,i);
+                Sf(i) = obj.avg_0(DFf{i}.*DGf{i}); % Since we have proven commutativity
             end
             SF = diag(C);
         end
