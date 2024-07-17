@@ -9,6 +9,6 @@ tak_names = {{' Hartel Canal'; ' Old Meuse South'; ' Old Meuse North'},...
     {' New Meuse'; ' Old Meuse'; ' Rotterdam Waterway'}}; 
 
 tak_names = tak_names{dataset_idx};
-
+addpath("helpers\", "saved\")
 [adcp, ctd, h] = import_data(RF, dataset_name);
 end

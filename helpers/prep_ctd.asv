@@ -28,10 +28,8 @@ end
 Xs.t = time;
 Xs.x = ctd{tak}.pos(:,1);
 Xs.y = ctd{tak}.pos(:,2);
-temp.solver.mesh = mesh_mean;
-temp.solver.bathy = bathy;
-temp.solver.water_level = water_level;
-[Hctd, ~, Zbctd]  = get_H(Xs, temp, 0);
+temp.solver.
+[Hctd, Wlctd, Zbctd]  = get_H(Xs, mesh_mean, bathy, water_level, 0);
 hctd = diag(Hctd);
 zbctd = diag(Zbctd);
 %zpos = ctd{tak}.pos(:,3) + min(ctd{tak}.pos(:,3));

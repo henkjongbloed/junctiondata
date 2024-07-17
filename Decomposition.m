@@ -7,7 +7,7 @@ classdef Decomposition < handle & helpers.ArraySupport
 
         H double % Local water depth, depending on (t,y)
 
-        DFf struct % Orthogonal components of the function to be decomposed
+        %DFf struct % Orthogonal components of the function to be decomposed
     end
     properties(Dependent)
         A
@@ -236,9 +236,9 @@ classdef Decomposition < handle & helpers.ArraySupport
             C = zeros(numel(DFf), numel(DFf));
             SF = zeros([numel(DFf),1]);
             for i = 1:numel(DFf)
-                Sf(i) = obj.avg_0(DFf{i}.*DGf{i}); % Since we have proven commutativity
+                SF(i) = obj.avg_0(DFf{i}.*DGf{i}); % Since we have proven commutativity
             end
-            SF = diag(C);
+            %SF = diag(C);
         end
 
 

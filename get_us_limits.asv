@@ -1,0 +1,29 @@
+function [u, v, w, s, D] = get_var_limits(var, res, lim)
+
+lim = {[0, flow.solver.model.periods(1,1)/(3600*24)], [0, flow.solver.model.periods(1,1)/(3600*24)];...
+    [min(flow.solver.mesh.n_left)+.5, max(flow.solver.mesh.n_right)-.5], ...
+    [min(flow.solver.mesh.n_left)+.5, max(flow.solver.mesh.n_right)-.5];...
+    [0,1], [.1,.9]};
+
+X = get_coords(lim, res);
+
+U = var.evaluate(1, T = X.T(:), N = X.N(:), Sig = X.Sig(:), extrapolate=true);
+if size
+u = reshape(U(:,1), evres);
+v = reshape(U(:,2), evres);
+w = reshape(U(:,3), evres);
+
+
+[Hf, ~, Zbf] = get_H(X, flow, 1); % Own function to derive H(t,y) from X and adcptools variables.
+
+H = repmat(Hf, [1,1,numel(X.sig)]);
+%Zb = repmat(Zbf, [1,1,numel(X.sig)]); 
+X.Z = Zbf + X.Sig.*H;
+
+% Salinity: Evaluate sigma from .1 up to .9
+S = sal.evaluate(1, T = Tq, N = Nq, Sig = rescale(Sigq, .0, 1), extrapolate=true);
+S(S<0)=0;
+s = reshape(S(:,1), res);
+
+D = Decomposition(X=X, H=H);
+end

@@ -17,20 +17,13 @@ for ti = 1:3
 end
   figure
 for ti = 1:3
-  subplot(3,2,2*ti-1)
+  subplot(3,2,ti)
     hold on
     for t = 1:evres(1)
         plot(D{ti}.X.y, squeeze(U{ti}{1}(t, :, 3)), 'b')
         plot(D{ti}.X.y, squeeze(U{ti}{1}(t, :, 17)), 'r')
     end
-    hold off
-    subplot(3,2,2*ti)
-        hold on
-    for t = 1:evres(1)
-        plot(D{ti}.X.y, squeeze(S{ti}{1}(t, :, 3)), 'b')
-        plot(D{ti}.X.y, squeeze(S{ti}{1}(t, :, 17)), 'r')
-    end
-    hold off
+    subplot()
 end
 M2T = flow.solver.model.periods(1,1)/(3600*24);
 visres = [12, evres(2), 3];
