@@ -17,7 +17,7 @@ elseif strcmp(DS,'OMHA14')
     time = rescale(ctd{tak}.T, datenum(V.time(1)), datenum(V.time(end)));
     ctd{tak}.t = datetime(time, 'ConvertFrom', 'datenum'); % Rescale time such that measurements fall within experiment time
     ctd{tak}.pos(:,3) = -ctd{tak}.Z;% Upward facing z axis - max(-ctd{tak}.Z - water_level.get_water_level(ctd{tak}.t));
-    [ctd{tak}.s, ctd{tak}.n] = xs(tak).xy2sn(ctd{tak}.pos(:,1), ctd{tak}.pos(:,2));
+    [ctd{tak}.s, ctd{tak}.n] = xs.xy2sn(ctd{tak}.pos(:,1), ctd{tak}.pos(:,2));
     %     ctddt = 6000;
 %     [ctdH, S.i] = getHour(ctd.T, ctddt); % dt = 6000 -> 1 sample per 6s?
      %if strcmp(U.BN, ' Old Meuse North')

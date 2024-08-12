@@ -104,7 +104,7 @@ classdef Decomposition < handle & helpers.ArraySupport
         end
 
         function plot_components(obj, AF, q)
-            figure('units','normalized','outerposition',[0 0 1 1])
+             figure('units','normalized','outerposition',[0 0 1 1])
             for i=1:numel(AF)
                 subplot(2,4,i)
                 obj.plot_component(AF{i})
@@ -125,46 +125,58 @@ classdef Decomposition < handle & helpers.ArraySupport
                         xticklabels("f0")
                         title("F0")
                     else % only sig-dependent
-                        plot(squeeze(af), obj.X.sig)    %2
+                        v = squeeze(af);
+                        plot(v, obj.X.sig)    %2
                         xlabel("f(sig)")
                         ylabel("sig")
                         title("F(sig)")
+                        xlim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     end
                 else % y-dependent
-                    if sf(3) == 1 % only y-dependent
-                        plot(obj.X.y, squeeze(af))     %3
+                    if sf(3) == 1 % only y-dependentcma
+                        v = squeeze(af);
+                        plot(obj.X.y, v)     %3
                         xlabel("y")
                         ylabel("f(y)")
                         title("F(y)")
+                        ylim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     else % y and sig dependent
-                        contourf(obj.X.y, obj.X.sig, squeeze(af)')                        %4
+                        v=squeeze(af)';
+                        contourf(obj.X.y, obj.X.sig, v)                        %4
                         xlabel("y")
                         ylabel("sig")
                         title("F(y,sig)")
                         colorbar
+                        clim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     end
                 end
             else % t-dependent
                 if sf(2) == 1 % y-independent
                     if sf(3) == 1 % only t-dependent
-                        plot(obj.X.t, squeeze(af)')
+                        v = squeeze(af)';
+                        plot(obj.X.t, v)
                         xlabel("t")
                         ylabel("f(t)")%5
                         title("F(t)")
+                        ylim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     else % only (t,sig)-dependent
-                        contourf(obj.X.t, obj.X.sig, squeeze(af)')  
+                        v =  squeeze(af)';
+                        contourf(obj.X.t, obj.X.sig, v)  
                         xlabel("t")
                         ylabel("sig")                        %6
                         colorbar
                         title("F(t,sig)")
+                        clim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     end
                 else % y-dependent
                     if sf(3) == 1 % only (t,y)-dependent
-                        contourf(obj.X.t, obj.X.y, squeeze(af)')
+                        v = squeeze(af)';
+                        contourf(obj.X.t, obj.X.y, v)
                         xlabel("t")
                         ylabel("y")%7
                         title("F(t,y)")
                         colorbar
+                        clim([-max(abs(v), [], "all"), max(abs(v), [], "all")])
                     else % t and y and sig dependent
                         histogram(af(:))
                         title("F(t,y,sig)")
@@ -173,6 +185,20 @@ classdef Decomposition < handle & helpers.ArraySupport
                 end
             end
 %             colormap(helpers.cmaps(q))
+        end
+
+
+        function val = extract_inst_vlim(obj, af, vlim)
+
+            [~, idx(1)] = min(abs(obj.X.sig - vlim(1)));
+            [~, idx(2)] = min(abs(obj.X.sig - vlim(2)));
+
+            val = 1./(obj.X.sig(idx(2)) - obj.X.sig(idx(1))).*trapz(obj.X.sig(idx(1):idx(2)), af(:,:,idx(1):idx(2)), 3);
+
+        end
+
+        function val = extract_on_tgrid(obj, af, tgrid)
+            val = af(tgrid, :, :);
         end
 
         function [f,ff] = avg_comp(obj, f, avg_op)
@@ -194,54 +220,105 @@ classdef Decomposition < handle & helpers.ArraySupport
             [f,ff] = obj.avg_comp(f, avg_op);
         end
 
-       % function [DF, AF] = get_decomposition(obj, f)
-
-
-
-
-        function [DF, AF, DFf, AFf] = decompose_function(obj, f)
-
-            AF{1} = f;
-            AFf{1}  = f;
-
-            [AF{2}, AFf{2}] = obj.avg_comp(f, {@obj.twa});    %twa(f)
-            [AF{3}, AFf{3}] = obj.avg_comp(f, {@obj.la});     %la(f)
-            [AF{4}, AFf{4}] = obj.avg_comp(f, {@obj.va});     %va(f)
-
-            [AF{5}, AFf{5}] = obj.avg_comp(f, {@obj.twa, @obj.la});   %twa(la(f))
-            [AF{6}, AFf{6}] = obj.avg_comp(f, {@obj.twa, @obj.va});   %twa(va(f))
-            [AF{7}, AFf{7}] = obj.avg_comp(f, {@obj.la, @obj.va});    %la(va(f))
-
-            [AF{8}, AFf{8}] = obj.avg_comp(f, {@obj.twa, @obj.la, @obj.va});  %f_0
-
-
-            DFf{1} = AFf{8};                                DF{1} = AF{8};
-
-            DFf{2} = AFf{7} - DFf{1};   	                DF{2} = DFf{2}(:,1,1);
-            DFf{3} = AFf{6} - DFf{1};                       DF{3} = DFf{3}(1,:,1);
-            DFf{4} = AFf{5} - DFf{1};                       DF{4} = DFf{4}(1,1,:);
-
-            DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = DFf{5}(1,:,:);
-            DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = DFf{6}(:,1,:);
-            DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = DFf{7}(:,:,1);
-
-            DFf{8} = AFf{1} - DFf{1} - DFf{2} - DFf{3} - DFf{4} - DFf{5} - DFf{6} - DFf{7};
-            DF{8} = DFf{8};
-        end
-
-        function [SF, C] = decompose_product(obj, f, g)
-            [DF, AF, DFf, AFf] = obj.decompose_function(f);
-            [DG, AG, DGf, AGf] = obj.decompose_function(g);
-
-            C = zeros(numel(DFf), numel(DFf));
-            SF = zeros([numel(DFf),1]);
-            for i = 1:numel(DFf)
-                SF(i) = obj.avg_0(DFf{i}.*DGf{i}); % Since we have proven commutativity
+        function [names, ap] = get_names(obj, vname)
+            ap = ["_0", "}_t^t", "_y^y", "_z^z", "_{yz}", "_{tz}", "_{ty}", "_{tyz}"];
+            op = ["", "\bar{", "\bar{", "\bar{", "\hat{", "\underline{", "[", ""];
+            for idx = 1:numel(ap)
+                names{idx, :} = ['$',  op(idx), vname, ap(idx), '$'];
             end
-            %SF = diag(C);
         end
 
 
+        function [DF, AF] = decompose_function(obj, f)
+            % DF: Orthogonal basis functions for constructing f
+            % Averaged components, non-orthogonal
+            % f_0
+            % bar(f)(t)
+            % bar(f)(y)
+            % bar(f)(sig)
+            % twa(f)
+            % la(f)
+            % va(f)
+            % full(f)
+
+            AF{8} = f;
+
+            AF{7} = obj.avg_comp(f, {@obj.va});     % va(f) -> depth averaged
+            AF{6} = obj.avg_comp(f, {@obj.la});     % la(f) -> laterally averaged
+            AF{5} = obj.avg_comp(f, {@obj.twa});    % twa(f) -> tidally averaged
+
+            AF{4} = obj.avg_comp(AF{5}, {@obj.la}); % la(twa(f)) -> residual depth profile
+            AF{3} = obj.avg_comp(AF{5}, {@obj.va}); % va(twa(f)) -> residual lateral profile
+            AF{2} = obj.avg_comp(AF{7}, {@obj.la}); % la(va(f)) ->  CSA temporal profile
+            
+            AF{1} = obj.avg_comp(AF{3}, {@obj.la}); % f_0
+            
+            DF{1} = AF{1};
+
+            DF{2} = AF{2} - DF{1};
+            DF{3} = AF{3} - DF{1};
+            DF{4} = AF{4} - DF{1};
+
+            DF{5} = AF{5} - DF{1}-DF{3}-DF{4};
+            DF{6} = AF{6} - DF{1}-DF{2}-DF{4};
+            DF{7} = AF{7} - DF{1}-DF{2}-DF{3};
+
+            DF{8} = AF{8} - DF{1}-DF{2}-DF{3}-DF{4}-DF{5}-DF{6}-DF{7};
+
+%             AF{1} = f;
+%             AFf{1}  = f;
+% 
+%             [AF{2}, AFf{2}] = obj.avg_comp(f, {@obj.twa});    %twa(f)
+%             [AF{3}, AFf{3}] = obj.avg_comp(f, {@obj.la});     %la(f)
+%             [AF{4}, AFf{4}] = obj.avg_comp(f, {@obj.va});     %va(f)
+% 
+%             [AF{5}, AFf{5}] = obj.avg_comp(f, {@obj.twa, @obj.la});   %twa(la(f))
+%             [AF{6}, AFf{6}] = obj.avg_comp(f, {@obj.twa, @obj.va});   %twa(va(f))
+%             [AF{7}, AFf{7}] = obj.avg_comp(f, {@obj.la, @obj.va});    %la(va(f))
+% 
+%             [AF{8}, AFf{8}] = obj.avg_comp(f, {@obj.twa, @obj.la, @obj.va});  %f_0
+% 
+% 
+%             DFf{1} = AFf{8};                                DF{1} = AF{8};
+% 
+%             DFf{2} = AFf{7} - DFf{1};   	                DF{2} = DFf{2}(:,1,1);
+%             DFf{3} = AFf{6} - DFf{1};                       DF{3} = DFf{3}(1,:,1);
+%             DFf{4} = AFf{5} - DFf{1};                       DF{4} = DFf{4}(1,1,:);
+% 
+%             DFf{5} = AFf{2} - DFf{1} - DFf{3} - DFf{4};     DF{5} = DFf{5}(1,:,:);
+%             DFf{6} = AFf{3} - DFf{1} - DFf{2} - DFf{4};     DF{6} = DFf{6}(:,1,:);
+%             DFf{7} = AFf{4} - DFf{1} - DFf{2} - DFf{3};     DF{7} = DFf{7}(:,:,1);
+% 
+%             DFf{8} = AFf{1} - DFf{1} - DFf{2} - DFf{3} - DFf{4} - DFf{5} - DFf{6} - DFf{7};
+%             DF{8} = DFf{8};
+        end
+
+
+        function SF = decompose_product_inst(obj, DF1, DF2)
+            SF = cell(numel(DF1), numel(DF2));
+            for i = 1:numel(DF1)
+                for j = 1:numel(DF2)
+                    SF{i,j}= DF1{i}.*DF2{j}; % Since we have proven commutativity
+                end
+            end
+        end
+
+
+        function SF = decompose_product_diag(obj, DF1, DF2)
+            SF = zeros(numel(DF1), 1);
+            for i = 1:numel(DF1)
+               SF(i, 1) = obj.avg_0(DF1{i}.*DF2{i}); % Since we have proven commutativity
+            end
+        end
+
+        function SF = decompose_product_full(obj, DF1, DF2)
+            SF = zeros(numel(DF1), numel(DF2));
+            for i = 1:numel(DF1)
+                for j = 1:numel(DF2)
+                    SF(i, j) = obj.avg_0(DF1{i}.*DF2{j}); % Since we have proven commutativity
+                end
+            end
+        end
 
         function plotC(obj, C)
             figure('units','normalized','outerposition',[0 0 1 1])
