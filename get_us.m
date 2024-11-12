@@ -1,9 +1,12 @@
-function [u, s, D] = get_us(flow, salt, evres, reg_idx)
+function [u, s, D] = get_us(flow, salt, evres, reg_idx, Tlim)
 % evaluate u, s on a regular grid.
 
+% addendum 12-9: to fix time bug in comparing branches, we hardcode the
+% evaluation times of each dataset.
 
+Tlimn = datenum(Tlim);
 
-limu = {[0, flow.solver.model.periods(1,1)/(3600*24)];... %days (!)
+limu = {[Tlimn(1), Tlimn(2)];... %days (!)
     [min(flow.solver.mesh.n_left)+.5, max(flow.solver.mesh.n_right)-.5];...
     [0,1]};
 % Flow
@@ -26,6 +29,7 @@ sc = get_var(salt, Xs19, reg_idx);
 % Revert back to [0,1] sigma.
 Xs = get_coords(limu, evress);
 X = Xu;
+
 % refine the salinity solution in the lateral using cubic interpolation.
 % TODO - investigate result for multiple reg pars.
 % s{1} = interpn(Xs.T,Xs.Y, Xs.Sig, sc{1}, X.T,X.Y, X.Sig);
@@ -34,7 +38,7 @@ s{1} = interpn(Xs.T, Xs.Y, Xs.Sig, sc{1}, X.T, X.Y, X.Sig, 'makima');
 
 % Coordinate system of remaining analysis: X = Xu
 
-[H, ~, Zb] = get_H(X, flow, 0);
+[H, Wl, Zb] = get_H(X, flow, 0);
 
 if size(H, 3) == 1
     H = repmat(H, [1,1,numel(X.sig)]);
@@ -42,6 +46,6 @@ end
 X.Z = Zb + X.Sig.*H;
 
 
-D = Decomposition(X = X, H = H);
+D = Decomposition(X = X, H = H, wl = Wl(:,1), zb = Zb(1,:)');
 
 end

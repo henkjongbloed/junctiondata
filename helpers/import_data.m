@@ -14,7 +14,7 @@ processedADCP = 1;
 if processedADCP
     adcp = load(['ADCP',DS,'_V2'], '-mat').adcp;
 else
-    % load new data
+    % load new data -> On harddisk Canvio
     datloc = strcat(RF,F2,'data\',DS);
     if strcmp(DS,'NMOMNW15')
         adcp{1} = readDeployment('OSR', [datloc, '\data_meting_14sep2015\raai1']);

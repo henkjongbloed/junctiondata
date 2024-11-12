@@ -10,7 +10,7 @@ end
 
 % zvec = sol.solver.bathy.get_bed_elev(xvec, yvec);  % get (time-indep) bathy %DEPRECATED
 zb = n2zb(yvec, sol.solver.mesh);
-wl = sol.solver.bathy.water_level.get_water_level_model(datetime(X.t, 'ConvertFrom', 'datenum'));
+wl = sol.solver.bathy.water_level.get_water_level(datetime(X.t, 'ConvertFrom', 'datenum'));
 
 [Wl, Zb] = ndgrid(wl, zb);
 
