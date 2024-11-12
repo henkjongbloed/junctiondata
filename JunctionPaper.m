@@ -5,7 +5,7 @@ clearvars
 l = [50];
 
 % Datasets to analyze
-didx = 1:2;
+didx = 1;
 bidx = 1:3;
 [lf, ls, ures, sres, evres, dname, bname, flow, salt, F, D, DF, AF, NF, US, adcp, ctd, h] = preallo(l);
 
@@ -67,50 +67,47 @@ end
 %%
 
 %% 1D tide: Resolved vs unresolved.
-fig=makefigure(8,8)
+fig=makefigure(8,8);
 [resolved, unresolved, perc] = plot_1DT(fig, didx, bidx, D, bi, SF, ri, bname);
-fontsize(fig, 10, "points")
+%fontsize(fig, 10, "points")
 %% Idealized 2DV
-fig=makefigure(8,8)
+fig=makefigure(8,8);
 [resolved, unresolved, perc] = plot_2DV(fig, didx, bidx, SF, ri, D, bname, resolved, unresolved, perc);
-fontsize(fig, 10, "points")
+%fontsize(fig, 10, "points")
 %% Plot 1D transports
-% plot_1D_transports(didx, bidx, SF, ri, D, bname, UU);
+plot_1D_transports(didx, bidx, SF, ri, D, bname, UU);
 %% Plot 1D transports Salt Flux
 %fig=makefigure(16,8)
-%plot_1D_tidalTransport(didx, bidx, SF, ri, D, bname, UU);
+plot_1D_tidalTransport(didx, bidx, SF, ri, D, bname, UU);
 %fontsize(fig, 10, "points")
 %% Plot Net Salt Flux
 %fig=makefigure(18,8)
 
-%plot_NetSaltFlux(didx, bidx, SF, bname)
+plot_NetSaltFlux(didx, bidx, SF, bname)
 %fontsize(fig, 10, "points")
 
 %% Plot Net Balance
  %fig=makefigure(8,14)
 
-%plot_NetSaltBalance(didx, bidx, SF, bname)
+plot_NetSaltBalance(didx, bidx, SF, bname)
 %fontsize(fig, 10, "points")
 
 %% Plot some components t-sigma (z) and y-t
 % quick_inspect_plot(2, [1, 3], lf, D, DF, AF, c);
 %% Plot sigma averaged HC
-%treal = HAK_ty_plot(D, AF);
+treal = HAK_ty_plot(D, AF);
 %% Plot y-averaged NM (t - z plot)
 %NM_tsig_plot(treal, D, AF);
 %% Section 1b of the results: Instantaneous 3D dynamics
-%evaluate_strat(didx, bidx, lf, F, D, AF);
+evaluate_strat(didx, bidx, lf, F, D, AF);
 %% Section 2 of the results: Norms of flow and salinity, INSTANTANEOUS
-%NF = norms_bar_instantaneous_plot(D, didx, bidx, lf, NF);
- %% Section 2 of the results: Norms of flow and salinity, RESIDUAL
+NF = norms_bar_instantaneous_plot(D, didx, bidx, lf, NF);
+%% Section 2 of the results: Norms of flow and salinity, RESIDUAL
 %norms_bar_plot(didx, lf, bidx, NF);
-%%
-%csa_strat_plot(didx, bidx,F, D, AF);
-
-%%
-% csi_figs(di, bidx, D, AF)
+%% 1D plots
+csa_strat_plot(didx, bidx, F, D, AF);
 %% Plot subtidal dynamics with top view
-residual_top_plot(didx, bidx, flow, salt, F,D, AF);
+residual_top_plot(didx, bidx, flow, salt, F, D, AF);
 
 %% Make only legends and colorbars for salinity
 

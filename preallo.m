@@ -1,7 +1,7 @@
 function [lf, ls, ures, sres, evres, dname, bname, flow, salt, F, D, DF, AF, NF, SF, adcp, ctd, h] = preallo(l)
 % l = 10;
 addpath("helpers\", "saved\", "plot\")
-
+warning("off","MATLAB:subscripting:noSubscriptsSpecified")
 
 lf = l*[10,10,1,1,10];                  %Reg pars flow
 ls0 = 1;
