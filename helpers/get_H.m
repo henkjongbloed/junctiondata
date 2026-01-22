@@ -2,10 +2,10 @@ function [H, Wl, Zb] = get_H(X, sol, xs_proj)
 
 
 if xs_proj
-    [~, yvec] = sol.solver.xs.sn2xy(zeros(size(X.y)), X.y); % convert to x,y -> TODO Enter correct s,n coord!!
+    [~, yvec] = sol.solver.xs.sn2xy(zeros(size(X.y)), X.y); % convert to x,y
 else
 %     xvec = X.x;
-    yvec = X.y; % convert to x,y -> TODO Enter correct s,n coord!!
+    yvec = X.y; % convert to x,y
 end
 
 % zvec = sol.solver.bathy.get_bed_elev(xvec, yvec);  % get (time-indep) bathy %DEPRECATED

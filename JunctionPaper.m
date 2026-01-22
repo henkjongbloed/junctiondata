@@ -5,8 +5,8 @@ clearvars
 l = [50];
 
 % Datasets to analyze
-didx = 1;
-bidx = 1:3;
+didx = 1; % dataset indices
+bidx = 1; % branch indices
 [lf, ls, ures, sres, evres, dname, bname, flow, salt, F, D, DF, AF, NF, US, adcp, ctd, h] = preallo(l);
 
 for di = didx
@@ -15,6 +15,10 @@ for di = didx
         [flow{di}{bi}, salt{di}{bi}] = solve_flow_salinity(dname{di}, bi, adcp{di}, ctd{di}, h{di}, lf, ls, ures, sres); % Solve for flow and salinity using the ADCPTools
     end
 end
+
+
+
+
 
 %% Evaluate solution and compute instantaneous flux.
 
@@ -64,7 +68,7 @@ for di = didx
             %D{di}{bi}.plotUSF(SF{di}{bi}{ri,1}, 0:7)
     end
 end
-%%
+%% Periodic animation
 
 %% 1D tide: Resolved vs unresolved.
 fig=makefigure(8,8);
