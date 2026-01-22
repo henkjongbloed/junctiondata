@@ -46,6 +46,6 @@ end
 X.Z = Zb + X.Sig.*H;
 
 
-D = Decomposition(X = X, H = H, wl = Wl(:,1), zb = Zb(1,:)');
+D = post_processing.Decomposition(X = X, H = H, wl = Wl(:,1), zb = Zb(1,:)');
 
 end
